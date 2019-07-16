@@ -2239,6 +2239,8 @@ class ThriftRequestHandler(object):
                 LOG.debug("Storing check results to the database.")
 
                 LOG.debug("Storing report")
+
+                report.main['issue_hash_content_of_line_in_context'] += "_" + str(len(bug_events))
                 bug_id = report.main[
                     'issue_hash_content_of_line_in_context']
 
