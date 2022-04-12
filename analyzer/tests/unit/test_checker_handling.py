@@ -127,6 +127,8 @@ class CheckerHandlingClangSATest(unittest.TestCase):
             def f(checks, checkers):
                 result = set(check for check, data in checks.items()
                              if data[0] == status)
+                print("------------------------------------------")
+                print(result)
                 return set(checkers) <= result
             return f
 
@@ -234,6 +236,7 @@ class CheckerHandlingClangSATest(unittest.TestCase):
         cfg_handler = ClangSA.construct_config_handler(args, context)
         cfg_handler.initialize_checkers(context, checkers,
                                         [('severity:LOW', True)])
+        print(CheckerState.enabled)
         self.assertTrue(all_with_status(CheckerState.enabled)
                         (cfg_handler.checks(), low_severity))
 
