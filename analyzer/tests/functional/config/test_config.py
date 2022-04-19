@@ -118,7 +118,7 @@ class TestConfig(unittest.TestCase):
         self.assertIn("clangsa analyzed simple.cpp", out)
         self.assertNotIn("clang-tidy analyzed simple.cpp", out)
 
-    def test_config_file_and_cmd_resolution(self):
+    def test_config_file_multiple_analyzer_config_resolution(self):
         """
         TODO
         """
@@ -136,11 +136,10 @@ class TestConfig(unittest.TestCase):
                                              ["--verbose", "debug_analyzer"])
 
         self.assertEqual(returncode, 0)
-        # FIXME: Both of these should be present.
         self.assertIn("track-conditions=false", out)
         self.assertIn("{\"HeaderFilterRegex\": \".*\"}", out)
 
-    def test_config_file_and_cmd_resolutionSwitched(self):
+    def test_config_file_and_cmd_resolution(self):
         """
         TODO
         """
@@ -149,16 +148,37 @@ class TestConfig(unittest.TestCase):
             json.dump({
                 'analyzer': [
                     "--analyzer-config",
-                    "clang-tidy:HeaderFilterRegex=.*",
-                    "--analyzer-config",
                     "clangsa:track-conditions=false"
                 ]}, config_f)
 
         out, returncode = self.__run_analyze(self.config_file_json,
-                                             ["--verbose", "debug_analyzer"])
+                                             ["--analyzer-config",
+                                              "clang-tidy:"
+                                              "HeaderFilterRegex=.*",
+                                              "--verbose", "debug_analyzer"])
 
         self.assertEqual(returncode, 0)
-        # FIXME: Both of these should be present.
+        self.assertIn("track-conditions=false", out)
+        self.assertIn("{\"HeaderFilterRegex\": \".*\"}", out)
+
+    def test_cmd_multiple_analyzer_config_resolution(self):
+        """
+        TODO
+        """
+
+        with open(self.config_file_json, 'w+',
+                  encoding="utf-8", errors="ignore") as config_f:
+            config_f.write("")
+
+        out, returncode = self.__run_analyze(self.config_file_json,
+                                             ["--analyzer-config",
+                                              "clang-tidy:"
+                                              "HeaderFilterRegex=.*",
+                                              "--analyzer-config",
+                                              "clangsa:track-conditions=false",
+                                              "--verbose", "debug_analyzer"])
+
+        self.assertEqual(returncode, 0)
         self.assertIn("track-conditions=false", out)
         self.assertIn("{\"HeaderFilterRegex\": \".*\"}", out)
 

@@ -1,8 +1,8 @@
 {
   "runtime": {
     "analyzers": {
-      "clangsa": "/home/eumakri/Documents/llvm-project/build/bin/clang",
-      "clang-tidy": "/home/eumakri/Documents/llvm-project/build/bin/clang-tidy"
+      "clangsa": "clang",
+      "clang-tidy": "clang-tidy"
     },
     "clang-apply-replacements": "clang-apply-replacements"
   },
