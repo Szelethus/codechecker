@@ -32,7 +32,6 @@ class OrderedCheckersAction(argparse.Action):
                                                     **kwargs)
 
     def __call__(self, parser, namespace, value, option_string=None):
-
         if 'ordered_checkers' not in namespace:
             namespace.ordered_checkers = []
         ordered_checkers = namespace.ordered_checkers
@@ -54,7 +53,6 @@ class OrderedAnalyzerConfigAction(argparse.Action):
                                                           **kwargs)
 
     def __call__(self, parser, namespace, value, option_string=None):
-
         if 'analyzer_config' not in namespace:
             namespace.analyzer_config = []
         analyzer_config = namespace.analyzer_config

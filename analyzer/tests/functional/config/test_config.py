@@ -127,16 +127,17 @@ class TestConfig(unittest.TestCase):
             json.dump({
                 'analyzer': [
                     "--analyzer-config",
-                      "clangsa:track-conditions=false",
+                    "clangsa:track-conditions=false",
                     "--analyzer-config",
-                      "clang-tidy:HeaderFilterRegex=.*"
+                    "clang-tidy:HeaderFilterRegex=.*"
                 ]}, config_f)
 
-        out, returncode = self.__run_analyze(self.config_file_json, ["--verbose", "debug_analyzer"])
+        out, returncode = self.__run_analyze(self.config_file_json,
+                                             ["--verbose", "debug_analyzer"])
 
         self.assertEqual(returncode, 0)
         # FIXME: Both of these should be present.
-        self.assertNotIn("track-conditions=false", out)
+        self.assertIn("track-conditions=false", out)
         self.assertIn("{\"HeaderFilterRegex\": \".*\"}", out)
 
     def test_config_file_and_cmd_resolutionSwitched(self):
@@ -148,17 +149,18 @@ class TestConfig(unittest.TestCase):
             json.dump({
                 'analyzer': [
                     "--analyzer-config",
-                      "clang-tidy:HeaderFilterRegex=.*",
+                    "clang-tidy:HeaderFilterRegex=.*",
                     "--analyzer-config",
-                      "clangsa:track-conditions=false"
+                    "clangsa:track-conditions=false"
                 ]}, config_f)
 
-        out, returncode = self.__run_analyze(self.config_file_json, ["--verbose", "debug_analyzer"])
+        out, returncode = self.__run_analyze(self.config_file_json,
+                                             ["--verbose", "debug_analyzer"])
 
         self.assertEqual(returncode, 0)
         # FIXME: Both of these should be present.
         self.assertIn("track-conditions=false", out)
-        self.assertNotIn("{\"HeaderFilterRegex\": \".*\"}", out)
+        self.assertIn("{\"HeaderFilterRegex\": \".*\"}", out)
 
     def test_only_clangsa_config_backward_compatible_mixed(self):
         """
