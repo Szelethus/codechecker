@@ -888,8 +888,6 @@ def main(args):
     # Check the format of analyzer options.
     if 'analyzer_config' in args:
         for config in args.analyzer_config:
-            print("-------------###############------------------_")
-            print(config)
             if not re.match(config_option_re, config):
                 LOG.error("Analyzer option in wrong format: %s", config)
                 sys.exit(1)

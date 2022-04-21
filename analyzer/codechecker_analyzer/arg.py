@@ -32,6 +32,7 @@ class OrderedCheckersAction(argparse.Action):
                                                     **kwargs)
 
     def __call__(self, parser, namespace, value, option_string=None):
+
         if 'ordered_checkers' not in namespace:
             namespace.ordered_checkers = []
         ordered_checkers = namespace.ordered_checkers
@@ -48,12 +49,13 @@ class OrderedAnalyzerConfigAction(argparse.Action):
 
     def __init__(self, option_strings, dest, nargs=None, **kwargs):
         if nargs is not '*':
-           raise ValueError("nargs must be '*' for backward compatibility " \
-                            "reasons!")
+            raise ValueError("nargs must be '*' for backward compatibility "
+                             "reasons!")
         super(OrderedAnalyzerConfigAction, self).__init__(option_strings, dest,
                                                           nargs, **kwargs)
 
     def __call__(self, parser, namespace, value, option_string=None):
+
         if 'analyzer_config' not in namespace:
             namespace.analyzer_config = []
         analyzer_config = namespace.analyzer_config
