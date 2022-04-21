@@ -50,7 +50,7 @@ class OrderedAnalyzerConfigAction(argparse.Action):
         # if nargs is not None:
         #    raise ValueError("nargs not allowed")
         super(OrderedAnalyzerConfigAction, self).__init__(option_strings, dest,
-                                                          **kwargs)
+                                                          nargs, **kwargs)
 
     def __call__(self, parser, namespace, value, option_string=None):
         if 'analyzer_config' not in namespace:

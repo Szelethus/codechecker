@@ -350,7 +350,7 @@ used to generate a log file on the fly.""")
     analyzer_opts.add_argument('--analyzer-config',
                                dest='analyzer_config',
                                nargs='*',
-                               action=OrderedAnalyzerConfigAction,
+                               # action=OrderedAnalyzerConfigAction,
                                default=["clang-tidy:HeaderFilterRegex=.*"],
                                help="Analyzer configuration options in the "
                                     "following format: analyzer:key=value. "

@@ -402,7 +402,7 @@ def add_arguments_to_parser(parser):
     analyzer_opts.add_argument('--analyzer-config',
                                dest='analyzer_config',
                                nargs='*',
-                               action=OrderedAnalyzerConfigAction,
+                               # action=OrderedAnalyzerConfigAction,
                                default=["clang-tidy:HeaderFilterRegex=.*"],
                                help="Analyzer configuration options in the "
                                     "following format: analyzer:key=value. "
@@ -888,6 +888,8 @@ def main(args):
     # Check the format of analyzer options.
     if 'analyzer_config' in args:
         for config in args.analyzer_config:
+            print("-------------###############------------------_")
+            print(config)
             if not re.match(config_option_re, config):
                 LOG.error("Analyzer option in wrong format: %s", config)
                 sys.exit(1)
