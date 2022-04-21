@@ -47,8 +47,9 @@ class OrderedAnalyzerConfigAction(argparse.Action):
     """
 
     def __init__(self, option_strings, dest, nargs=None, **kwargs):
-        # if nargs is not None:
-        #    raise ValueError("nargs not allowed")
+        if nargs is not '*':
+           raise ValueError("nargs must be '*' for backward compatibility " \
+                            "reasons!")
         super(OrderedAnalyzerConfigAction, self).__init__(option_strings, dest,
                                                           nargs, **kwargs)
 
@@ -56,6 +57,11 @@ class OrderedAnalyzerConfigAction(argparse.Action):
         if 'analyzer_config' not in namespace:
             namespace.analyzer_config = []
         analyzer_config = namespace.analyzer_config
-        analyzer_config.append(value)
+
+        assert isinstance(value, list), \
+               "--analyzer-config value  (" + str(value) + ") is not a list," \
+               " but should be if nargs is not None!"
+
+        analyzer_config.extend(value)
 
         namespace.analyzer_config = analyzer_config
