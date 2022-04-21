@@ -120,7 +120,8 @@ class TestConfig(unittest.TestCase):
 
     def test_config_file_multiple_analyzer_config_resolution(self):
         """
-        TODO
+        Test whether multiple --analyzer-config arguments from a CodeChecker
+        config file are merged, and don't overwrite one another.
         """
         with open(self.config_file_json, 'w+',
                   encoding="utf-8", errors="ignore") as config_f:
@@ -141,7 +142,8 @@ class TestConfig(unittest.TestCase):
 
     def test_config_file_and_cmd_resolution(self):
         """
-        TODO
+        Test whether multiple --analyzer-config arguments from *both* a
+        CodeChecker config file are merged, and don't overwrite one another.
         """
         with open(self.config_file_json, 'w+',
                   encoding="utf-8", errors="ignore") as config_f:
@@ -163,7 +165,8 @@ class TestConfig(unittest.TestCase):
 
     def test_cmd_multiple_analyzer_config_resolution(self):
         """
-        TODO
+        Test whether multiple --analyzer-config arguments from the command line
+        are merged, and don't overwrite one another.
         """
 
         with open(self.config_file_json, 'w+',
@@ -178,7 +181,6 @@ class TestConfig(unittest.TestCase):
                                               "clangsa:track-conditions=false",
                                               "--verbose", "debug_analyzer"])
 
-        print(out)
         self.assertNotEqual(returncode, 1)
         self.assertIn("track-conditions=false", out)
         self.assertIn("{\"HeaderFilterRegex\": \".*\"}", out)

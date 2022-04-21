@@ -44,7 +44,9 @@ class OrderedCheckersAction(argparse.Action):
 
 class OrderedAnalyzerConfigAction(argparse.Action):
     """
-    TODO
+    Action to store --analyzer-config values. These may come from many sources,
+    including the CLI, the CodeChecker config file, the saargs file and the
+    tidyargs file, or some other places.
     """
 
     def __init__(self, option_strings, dest, nargs=None, **kwargs):
