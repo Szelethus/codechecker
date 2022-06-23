@@ -145,12 +145,6 @@ class ClangTidy(analyzer_base.SourceAnalyzer):
         checkers = []
         compiler_warnings = []
 
-        # -checks=-clang-analyzer-* option is added to the analyzer command by
-        # default except when all analyzer config options come from .clang-tidy
-        # file. The content of this file overrides every other custom config.
-        if config.analyzer_config.get('take-config-from-directory') == 'true':
-            return checkers, compiler_warnings
-
         has_checker_config = \
             config.checker_config and config.checker_config != '{}'
 
@@ -159,7 +153,8 @@ class ClangTidy(analyzer_base.SourceAnalyzer):
         # analyzer in CodeChecker.
         checkers.append('-clang-analyzer-*')
 
-        if has_checker_config:
+        if has_checker_config and \
+           config.analyzer_config.get('take-config-from-directory') != 'true':
             try:
                 # Is is possible that the value of config.checker_config
                 # is not a valid JSON string because the keys/values are
@@ -203,6 +198,11 @@ class ClangTidy(analyzer_base.SourceAnalyzer):
             elif state == CheckerState.disabled:
                 checkers.append('-' + checker_name)
 
+        # -checks=-clang-analyzer-* option is added to the analyzer command by
+        # default except when all analyzer config options come from .clang-tidy
+        # file. The content of this file overrides every other custom config.
+        if config.analyzer_config.get('take-config-from-directory') == 'true':
+            return [], compiler_warnings
         return checkers, compiler_warnings
 
     def construct_analyzer_cmd(self, result_handler):
@@ -213,6 +213,9 @@ class ClangTidy(analyzer_base.SourceAnalyzer):
             analyzer_cmd = [config.analyzer_binary]
 
             checks, compiler_warnings = self.get_checker_list(config)
+            print("========================================================")
+            print(compiler_warnings)
+            print("========================================================")
 
             if checks:
                 # The invocation should end in a Popen call with shell=False,

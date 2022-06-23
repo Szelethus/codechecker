@@ -798,6 +798,36 @@ class TestAnalyze(unittest.TestCase):
         errcode = process.returncode
         self.assertEqual(errcode, 0)
 
+    def test_clang_tidy_config_from_directory_ignores_clang_diagnostics(self):
+        """Test disabling warni347856347856347856348ngs as checker groups."""
+        build_json = os.path.join(self.test_workspace, "build.json")
+        analyze_cmd = [self._codechecker_cmd, "check", "-l", build_json,
+                       "--analyzers", "clang-tidy",
+                       "-d", "clang-diagnostic", "--analyzer-config",
+                       "clang-tidy:take-config-from-directory=true"]
+
+        source_file = os.path.join(self.test_dir, "compiler_warning.c")
+        build_log = [{"directory": self.test_workspace,
+                      "command": "gcc -c " + source_file,
+                      "file": source_file
+                      }]
+
+        with open(build_json, 'w',
+                  encoding="utf-8", errors="ignore") as outfile:
+            json.dump(build_log, outfile)
+
+        process = subprocess.Popen(
+            analyze_cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            cwd=self.test_dir,
+            encoding="utf-8",
+            errors="ignore")
+        out, _ = process.communicate()
+
+        self.assertNotIn(
+            "unused variable 'i' [clang-diagnostic-unused-variable]", out)
+
     def test_disable_all_warnings(self):
         """Test disabling warnings as checker groups."""
         build_json = os.path.join(self.test_workspace, "build.json")
