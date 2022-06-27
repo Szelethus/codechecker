@@ -36,6 +36,16 @@ class CheckerState(Enum):
     disabled = 1
     enabled = 2
 
+def get_compiler_warning_name(checker_name):
+    """
+    Removes 'W' or 'Wno' from the compiler warning name, if this is a
+    compiler warning. Returns None otherwise.
+    """
+    # Checker name is a compiler warning.
+    if checker_name.startswith('W'):
+        return checker_name[4:] if \
+            checker_name.startswith('Wno-') else checker_name[1:]
+    return None
 
 class AnalyzerConfigHandler(metaclass=ABCMeta):
     """
