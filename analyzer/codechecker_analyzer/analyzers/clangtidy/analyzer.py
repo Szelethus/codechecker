@@ -183,8 +183,7 @@ class ClangTidy(analyzer_base.SourceAnalyzer):
         # default except when all analyzer config options come from .clang-tidy
         # file. The content of this file overrides every other custom config.
         if config.analyzer_config.get('take-config-from-directory') == 'true':
-            print("DELETING CHECKERS: ", str(checkers))
-            checkers = []
+            return [], compiler_warnings
 
         if has_checker_config:
             try:
@@ -197,7 +196,7 @@ class ClangTidy(analyzer_base.SourceAnalyzer):
                 # valid dictionary.
                 checker_cfg = ast.literal_eval(config.checker_config.strip())
                 if checker_cfg.get('Checks'):
-                    checkers = []
+                    return [], compiler_warnings
             except SyntaxError as ex:
                 LOG.debug("Invalid checker configuration: %s. Error: %s",
                           config.checker_config, ex)
@@ -212,10 +211,6 @@ class ClangTidy(analyzer_base.SourceAnalyzer):
             analyzer_cmd = [config.analyzer_binary]
 
             checks, compiler_warnings = self.get_checker_list(config)
-            print("========================================================")
-            print(checks)
-            print(compiler_warnings)
-            print("========================================================")
 
             if checks:
                 # The invocation should end in a Popen call with shell=False,
@@ -426,12 +421,8 @@ class ClangTidy(analyzer_base.SourceAnalyzer):
         # 'take-config-from-directory' is a special option which let the user
         # to use the '.clang-tidy' config files. It will disable analyzer and
         # checker configuration options.
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-        print(handler.checker_config)
         if not handler.checker_config and \
                 analyzer_config.get('take-config-from-directory') != 'true':
-            print("before fuckup:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-            print(analyzer_config)
             handler.checker_config = json.dumps(analyzer_config)
 
         check_env = env.extend(context.path_env_extra,
