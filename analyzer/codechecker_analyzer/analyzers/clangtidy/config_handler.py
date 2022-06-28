@@ -34,8 +34,8 @@ class ClangTidyConfigHandler(AnalyzerConfigHandler):
         """
         if self.analyzer_config and \
            self.analyzer_config.get('take-config-from-directory') == 'true':
-           if get_compiler_warning_name(checker_name) == None:
-               return
+            if get_compiler_warning_name(checker_name) == None:
+                return
 
         super(ClangTidyConfigHandler, self).add_checker(checker_name,
                                                         description, state)
