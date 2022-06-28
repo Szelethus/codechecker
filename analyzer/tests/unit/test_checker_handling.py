@@ -259,7 +259,7 @@ class MockContextTidy:
     package_root = './'
 
 
-def create_analyzer_tidy(args = []):
+def create_analyzer_tidy(args=[]):
     context = MockContextTidy()
     cfg_handler = ClangTidy.construct_config_handler(args, context)
 

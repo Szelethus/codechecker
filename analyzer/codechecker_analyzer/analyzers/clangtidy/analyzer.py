@@ -164,7 +164,7 @@ class ClangTidy(analyzer_base.SourceAnalyzer):
 
             # Checker name is a compiler warning.
             warning_name = get_compiler_warning_name(checker_name)
-            if warning_name != None:
+            if warning_name is not None:
                 if state == CheckerState.enabled:
                     compiler_warnings.append('-W' + warning_name)
                 elif state == CheckerState.disabled:
