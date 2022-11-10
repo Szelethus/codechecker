@@ -219,6 +219,13 @@ def process_report_filter(
     cmp_filter_expr, join_tables = process_cmp_data_filter(
         session, run_ids, report_filter, cmp_data)
 
+    print("---------------____")
+    print("---------------____")
+    print("---------------____")
+    print(cmp_filter_expr)
+    print("---------------____")
+    print("---------------____")
+
     if cmp_filter_expr is not None:
         AND.append(cmp_filter_expr)
 
@@ -603,7 +610,7 @@ def get_open_reports_date_filter_query_old(tbl=Report, date=RunHistory.time):
 
 def get_diff_bug_id_query(session, run_ids, tag_ids, open_reports_date):
     """ Get bug id query for diff. """
-    q = session.query(Report.bug_id.distinct())
+    q = session.query(Report.bug_id.distinct(), Report.path_length)
 
     if run_ids:
         q = q.filter(Report.run_id.in_(run_ids))
@@ -699,6 +706,11 @@ def process_cmp_data_filter(session, run_ids, report_filter, cmp_data):
 
     query_base = get_diff_bug_id_query(session, run_ids, base_tag_ids,
                                        base_open_reports_date)
+    print("////////////////////////////////////////")
+    print("////////////////////////////////////////")
+    print(query_base)
+    print("////////////////////////////////////////")
+    print("////////////////////////////////////////")
     query_base_runs = get_diff_run_id_query(session, run_ids, base_tag_ids)
 
     query_new = get_diff_bug_id_query(session, cmp_data.runIds,
@@ -709,15 +721,15 @@ def process_cmp_data_filter(session, run_ids, report_filter, cmp_data):
 
     AND = []
     if cmp_data.diffType == DiffType.NEW:
-        return and_(Report.bug_id.in_(query_new.except_(query_base)),
+        return and_(Report.bug_id.in_(query_new.except_(query_base).with_entities(Report.bug_id)),
                     Report.run_id.in_(query_new_runs)), [Run]
 
     elif cmp_data.diffType == DiffType.RESOLVED:
-        return and_(Report.bug_id.in_(query_base.except_(query_new)),
+        return and_(Report.bug_id.in_(query_base.except_(query_new).with_entities(Report.bug_id)),
                     Report.run_id.in_(query_base_runs)), [Run]
 
     elif cmp_data.diffType == DiffType.UNRESOLVED:
-        return and_(Report.bug_id.in_(query_base.intersect(query_new)),
+        return and_(Report.bug_id.in_(query_base.intersect(query_new).with_entities(Report.bug_id)),
                     Report.run_id.in_(query_new_runs)), [Run]
 
     else:
