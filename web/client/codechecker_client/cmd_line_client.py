@@ -1032,7 +1032,8 @@ def get_diff_remote_runs(
 
 
 def get_diff_local_dirs(
-    args,
+    report_filter: ttypes.ReportFilter,
+    diff_type: ttypes.DiffType,
     report_dirs: List[str],
     baseline_files: List[str],
     new_report_dirs: List[str],
@@ -1045,7 +1046,6 @@ def get_diff_local_dirs(
     filtered_report_hashes = []
 
     context = webserver_context.get_context()
-    report_filter = parse_report_filter_offline(args)
     base_results = get_report_dir_results(
         report_dirs, report_filter, context.checker_labels)
     new_results = get_report_dir_results(
@@ -1064,7 +1064,6 @@ def get_diff_local_dirs(
     base_hashes.update(baseline.get_report_hashes(baseline_files))
     new_hashes.update(baseline.get_report_hashes(new_baseline_files))
 
-    diff_type = get_diff_type(args)
     if diff_type == ttypes.DiffType.NEW:
         filtered_report_hashes = new_hashes.copy()
         for res in new_results:
@@ -1294,8 +1293,12 @@ def handle_diff_results_impl(args):
     report_hashes = []
     if (basename_local_dirs or basename_baseline_files) and \
        (newname_local_dirs or newname_baseline_files):
+        report_filter = parse_report_filter_offline(args)
+        diff_type = get_diff_type(args)
+
         reports, report_hashes = get_diff_local_dirs(
-            args, basename_local_dirs, basename_baseline_files,
+            report_filter, diff_type,
+            basename_local_dirs, basename_baseline_files,
             newname_local_dirs, newname_baseline_files)
 
         print_reports(print_steps, reports, report_hashes, output_dir,
