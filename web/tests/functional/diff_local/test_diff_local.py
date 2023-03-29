@@ -285,8 +285,6 @@ int main()
         # Run the diff command and check the results.
         res, _, _ = get_diff_results(
             [report_dir_base], [report_dir_new], '--new', 'json')
-        print(res)
-        assert False
         self.assertEqual(len(res), 2)
 
         res, _, _ = get_diff_results(
