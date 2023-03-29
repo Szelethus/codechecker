@@ -179,10 +179,12 @@ def process_run_args(client, run_args_with_tag: Iterable[str]):
 
 
 def get_suppressed_reports(reports: List[Report],
-                           args: List[str]) -> List[str]:
+                           review_st: List[ttypes.ReviewStatus]) -> List[str]:
     """Returns a list of suppressed report hashes."""
     return [report.report_hash for report in reports
-            if not report.check_source_code_comments(args.review_status)]
+            if not report.check_source_code_comments(
+                [ttypes.ReviewStatus._VALUES_TO_NAMES[x]
+                 for x in review_st])]
 
 
 def get_report_dir_results(
@@ -258,14 +260,13 @@ def skip_report_dir_result(
 
 def get_diff_base_results(
     client,
-    args,
+    report_filter: ttypes.ReportFilter,
     baseids,
     base_hashes,
     suppressed_hashes,
     get_details: bool = True
 ):
     """Get the run results from the server."""
-    report_filter = parse_report_filter(client, args)
     report_filter.reportHash = base_hashes + suppressed_hashes
 
     sort_mode = [(ttypes.SortMode(
@@ -823,7 +824,8 @@ def convert_report_data_to_report(
 
 def get_diff_local_dir_remote_run(
     client,
-    args,
+    report_filter: ttypes.ReportFilter,
+    diff_type: ttypes.DiffType,
     output_formats,
     report_dirs: List[str],
     baseline_files: List[str],
@@ -835,10 +837,11 @@ def get_diff_local_dir_remote_run(
 
     context = webserver_context.get_context()
     report_dir_results = get_report_dir_results(
-        report_dirs, args, context.checker_labels)
-    suppressed_in_code = get_suppressed_reports(report_dir_results, args)
+        report_dirs, report_filter, context.checker_labels)
 
-    diff_type = get_diff_type(args)
+    suppressed_in_code = \
+        get_suppressed_reports(report_dir_results, report_filter.reviewStatus)
+
     run_ids, run_names, tag_ids = \
         process_run_args(client, remote_run_names)
     local_report_hashes = set([r.report_hash for r in report_dir_results])
@@ -869,7 +872,7 @@ def get_diff_local_dir_remote_run(
             None, tag_ids)
 
         results = get_diff_base_results(
-            client, args, run_ids, remote_hashes, suppressed_in_code)
+            client, report_filter, run_ids, remote_hashes, suppressed_in_code)
 
         filtered_reports.extend(
             convert_report_data_to_report(client, results, output_formats))
@@ -892,7 +895,7 @@ def get_diff_local_dir_remote_run(
         # hashes.
         if filtered_report_hashes:
             results = get_diff_base_results(
-                client, args, run_ids, list(filtered_report_hashes),
+                client, report_filter, run_ids, list(filtered_report_hashes),
                 suppressed_in_code)
 
             for result in results:
@@ -919,7 +922,8 @@ def get_diff_local_dir_remote_run(
 
 def get_diff_remote_run_local_dir(
     client,
-    args,
+    report_filter: ttypes.ReportFilter,
+    diff_type: ttypes.DiffType,
     output_formats,
     remote_run_names: List[str],
     report_dirs: List[str],
@@ -931,10 +935,10 @@ def get_diff_remote_run_local_dir(
 
     context = webserver_context.get_context()
     report_dir_results = get_report_dir_results(
-        report_dirs, args, context.checker_labels)
-    suppressed_in_code = get_suppressed_reports(report_dir_results, args)
+        report_dirs, report_filter, context.checker_labels)
+    suppressed_in_code = \
+        get_suppressed_reports(report_dir_results, report_filter.reviewStatus)
 
-    diff_type = get_diff_type(args)
     run_ids, run_names, tag_ids = \
         process_run_args(client, remote_run_names)
     local_report_hashes = set([r.report_hash for r in report_dir_results])
@@ -979,7 +983,7 @@ def get_diff_remote_run_local_dir(
         # Show bugs in the baseline (server) which are not present in
         # the report dir or suppressed.
         results = get_diff_base_results(
-            client, args, run_ids, remote_hashes, suppressed_in_code)
+            client, report_filter, run_ids, remote_hashes, suppressed_in_code)
 
         filtered_reports.extend(
             convert_report_data_to_report(client, results, output_formats))
@@ -989,7 +993,8 @@ def get_diff_remote_run_local_dir(
 
 def get_diff_remote_runs(
     client,
-    args,
+    report_filter: ttypes.ReportFilter,
+    diff_type: ttypes.DiffType,
     output_formats,
     remote_base_run_names: Iterable[str],
     remote_new_run_names: Iterable[str]
@@ -997,14 +1002,11 @@ def get_diff_remote_runs(
     """
     Compares two remote runs and returns the filtered results.
     """
-    report_filter = parse_report_filter(client, args)
-
     base_ids, base_run_names, base_run_tags = \
         process_run_args(client, remote_base_run_names)
     report_filter.runTag = base_run_tags
 
     cmp_data = ttypes.CompareData()
-    cmp_data.diffType = get_diff_type(args)
 
     new_ids, new_run_names, new_run_tags = \
         process_run_args(client, remote_new_run_names)
@@ -1307,9 +1309,13 @@ def handle_diff_results_impl(args):
                  ', '.join([*basename_local_dirs, *basename_baseline_files]),
                  ', '.join([*newname_local_dirs, *newname_baseline_files]))
     elif newname_local_dirs or newname_baseline_files:
+        report_filter = parse_report_filter(client, args)
+        diff_type = get_diff_type(args)
+
         reports, report_hashes, matching_base_run_names = \
             get_diff_remote_run_local_dir(
-                client, args, output_formats, basename_run_names,
+                client, report_filter, diff_type, output_formats,
+                basename_run_names,
                 newname_local_dirs, newname_baseline_files)
 
         print_reports(print_steps, reports, report_hashes, output_dir,
@@ -1320,9 +1326,13 @@ def handle_diff_results_impl(args):
                  ', '.join(matching_base_run_names),
                  ', '.join([*newname_local_dirs, *newname_baseline_files]))
     elif (basename_local_dirs or basename_baseline_files):
+        report_filter = parse_report_filter(client, args)
+        diff_type = get_diff_type(args)
+
         reports, report_hashes, matching_new_run_names = \
             get_diff_local_dir_remote_run(
-                client, args, output_formats, basename_local_dirs,
+                client, report_filter, diff_type, output_formats,
+                basename_local_dirs,
                 basename_baseline_files, newname_run_names)
 
         print_reports(print_steps, reports, report_hashes, output_dir,
@@ -1333,10 +1343,13 @@ def handle_diff_results_impl(args):
                  ', '.join(newname_run_names),
                  ', '.join(matching_new_run_names))
     else:
+        report_filter = parse_report_filter(client, args)
+        diff_type = get_diff_type(args)
+
         reports, matching_base_run_names, matching_new_run_names = \
-            get_diff_remote_runs(client, args, output_formats,
-                                 basename_run_names,
-                                 newname_run_names)
+            get_diff_remote_runs(
+                client, report_filter, diff_type, output_formats,
+                basename_run_names, newname_run_names)
         print_reports(print_steps, reports, None, output_dir, output_formats)
         LOG.info("Compared multiple remote runs %s (matching: %s) and %s "
                  "(matching: %s)",
