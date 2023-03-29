@@ -263,8 +263,7 @@ def get_diff_base_results(
     get_details: bool = True
 ):
     """Get the run results from the server."""
-    report_filter = ttypes.ReportFilter()
-    add_filter_conditions(client, report_filter, args)
+    report_filter = add_filter_conditions(client, args)
     report_filter.reportHash = base_hashes + suppressed_hashes
 
     sort_mode = [(ttypes.SortMode(
@@ -458,11 +457,12 @@ def check_filter_values(args):
         bug_path_length
 
 
-def add_filter_conditions(client, report_filter, args):
+def add_filter_conditions(client, args):
     """
     This function fills some attributes of the given report filter based on
     the arguments which is provided in the command line.
     """
+    report_filter = ttypes.ReportFilter()
 
     severities, checkers, file_path, dt_statuses, rw_statuses, \
         bug_path_length = check_filter_values(args)
@@ -548,6 +548,7 @@ def add_filter_conditions(client, report_filter, args):
     if detected_at or fixed_at:
         report_filter.date = ttypes.ReportDate(detected=detected_at,
                                                fixed=fixed_at)
+    return report_filter
 
 
 def process_run_filter_conditions(args):
@@ -662,8 +663,7 @@ def handle_list_results(args):
         LOG.warning("No runs were found!")
         sys.exit(1)
 
-    report_filter = ttypes.ReportFilter()
-    add_filter_conditions(client, report_filter, args)
+    report_filter = add_filter_conditions(client, args)
 
     query_report_details = args.details and args.output_format == 'json' \
         if 'details' in args else None
@@ -728,7 +728,8 @@ def handle_diff_results_impl(args):
     # If the given output format is not 'table', redirect logger's output to
     # the stderr.
     stream = None
-    output_formats = args.output_formats
+    assert 'output_format' in args
+    output_formats = args.output_format
     if output_formats != 'table':
         stream = 'stderr'
 
@@ -1012,8 +1013,7 @@ def handle_diff_results_impl(args):
         """
         Compares two remote runs and returns the filtered results.
         """
-        report_filter = ttypes.ReportFilter()
-        add_filter_conditions(client, report_filter, args)
+        report_filter = add_filter_conditions(client, args)
 
         base_ids, base_run_names, base_run_tags = \
             process_run_args(client, remote_base_run_names)
@@ -1316,8 +1316,7 @@ def handle_list_result_types(args):
     check_deprecated_arg_usage(args)
 
     def get_statistics(client, run_ids, field, values):
-        report_filter = ttypes.ReportFilter()
-        add_filter_conditions(client, report_filter, args)
+        report_filter = add_filter_conditions(client, args)
 
         setattr(report_filter, field, values)
         checkers = client.getCheckerCounts(run_ids,
@@ -1341,8 +1340,7 @@ def handle_list_result_types(args):
             LOG.warning("No runs were found!")
             sys.exit(1)
 
-    all_checkers_report_filter = ttypes.ReportFilter()
-    add_filter_conditions(client, all_checkers_report_filter, args)
+    all_checkers_report_filter = add_filter_conditions(client, args)
 
     all_checkers = client.getCheckerCounts(run_ids,
                                            all_checkers_report_filter,
@@ -1364,8 +1362,7 @@ def handle_list_result_types(args):
                                           [ttypes.ReviewStatus.INTENTIONAL])
 
     # Get severity counts
-    report_filter = ttypes.ReportFilter()
-    add_filter_conditions(client, report_filter, args)
+    report_filter = add_filter_conditions(client, args)
 
     sev_count = client.getSeverityCounts(run_ids, report_filter, None)
 
