@@ -187,7 +187,7 @@ def get_suppressed_reports(reports: List[Report],
 
 def get_report_dir_results(
     report_dirs: List[str],
-    args: List[str],
+    report_filter: ttypes.ReportFilter,
     checker_labels: CheckerLabels
 ) -> List[Report]:
     """Get reports from the given report directories.
@@ -206,9 +206,9 @@ def get_report_dir_results(
             reports = reports_helper.skip(reports, processed_path_hashes)
 
             # Skip reports based on filter arguments.
-            reports = [
-                report for report in reports
-                if not skip_report_dir_result(report, args, checker_labels)]
+            reports = [report for report in reports
+                       if not skip_report_dir_result(
+                           report, report_filter, checker_labels)]
 
             all_reports.extend(reports)
 
@@ -217,14 +217,13 @@ def get_report_dir_results(
 
 def skip_report_dir_result(
     report: Report,
-    args: List[str],
+    report_filter: ttypes.ReportFilter,
     checker_labels: CheckerLabels
 ) -> bool:
     """Returns True if the report should be skipped from the results.
 
     Skipping is done based on the given filter set.
     """
-    report_filter = parse_report_filter_offline(args)
 
     if report_filter.severity:
         severity_name = checker_labels.severity(report.checker_name)
@@ -247,11 +246,11 @@ def skip_report_dir_result(
                     for f in report_filter.filepath]):
             return True
 
-    if 'checker_msg' in args:
+    if report_filter.checkerMsg:
         checker_msg = report.message
         if not any([re.match(r'^' + c.replace("*", ".*") + '$',
                              checker_msg, re.IGNORECASE)
-                    for c in args.checker_msg]):
+                    for c in report_filter.checkerMsg]):
             return True
 
     return False
@@ -1046,13 +1045,17 @@ def get_diff_local_dirs(
     filtered_report_hashes = []
 
     context = webserver_context.get_context()
+    report_filter = parse_report_filter_offline(args)
     base_results = get_report_dir_results(
-        report_dirs, args, context.checker_labels)
+        report_dirs, report_filter, context.checker_labels)
     new_results = get_report_dir_results(
-        new_report_dirs, args, context.checker_labels)
+        new_report_dirs, report_filter, context.checker_labels)
 
-    new_results = [res for res in new_results
-                   if res.check_source_code_comments(args.review_status)]
+    new_results = [
+            res for res in new_results
+            if res.check_source_code_comments(
+                [ttypes.ReviewStatus._VALUES_TO_NAMES[x]
+                 for x in report_filter.reviewStatus])]
 
     base_hashes = set([res.report_hash for res in base_results])
     new_hashes = set([res.report_hash for res in new_results])
@@ -1088,7 +1091,7 @@ def get_diff_local_dirs(
 
 
 def print_reports(
-    args,
+    print_steps: bool,
     reports: List[Report],
     report_hashes: Iterable[str],
     output_dir,
@@ -1115,7 +1118,6 @@ def print_reports(
     for output_format in output_formats:
         if output_format == 'plaintext':
             file_report_map = plaintext.get_file_report_map(reports)
-            print_steps = 'print_steps' in args
             plaintext.convert(
                 file_report_map, processed_file_paths, print_steps)
 
@@ -1288,6 +1290,7 @@ def handle_diff_results_impl(args):
                       args.product_url)
             raise sexit
 
+    print_steps = 'print_steps' in args
     report_hashes = []
     if (basename_local_dirs or basename_baseline_files) and \
        (newname_local_dirs or newname_baseline_files):
@@ -1295,7 +1298,8 @@ def handle_diff_results_impl(args):
             args, basename_local_dirs, basename_baseline_files,
             newname_local_dirs, newname_baseline_files)
 
-        print_reports(args, reports, report_hashes, output_dir, output_formats)
+        print_reports(print_steps, reports, report_hashes, output_dir,
+                      output_formats)
         LOG.info("Compared the following local files / directories: %s and %s",
                  ', '.join([*basename_local_dirs, *basename_baseline_files]),
                  ', '.join([*newname_local_dirs, *newname_baseline_files]))
@@ -1305,7 +1309,8 @@ def handle_diff_results_impl(args):
                 client, args, output_formats, basename_run_names,
                 newname_local_dirs, newname_baseline_files)
 
-        print_reports(args, reports, report_hashes, output_dir, output_formats)
+        print_reports(print_steps, reports, report_hashes, output_dir,
+                      output_formats)
         LOG.info("Compared remote run(s) %s (matching: %s) and local files / "
                  "report directory(s) %s",
                  ', '.join(basename_run_names),
@@ -1317,7 +1322,8 @@ def handle_diff_results_impl(args):
                 client, args, output_formats, basename_local_dirs,
                 basename_baseline_files, newname_run_names)
 
-        print_reports(args, reports, report_hashes, output_dir, output_formats)
+        print_reports(print_steps, reports, report_hashes, output_dir,
+                      output_formats)
         LOG.info("Compared local files / report directory(s) %s and remote "
                  "run(s) %s (matching: %s).",
                  ', '.join([*basename_local_dirs, *basename_baseline_files]),
@@ -1328,7 +1334,7 @@ def handle_diff_results_impl(args):
             get_diff_remote_runs(client, args, output_formats,
                                  basename_run_names,
                                  newname_run_names)
-        print_reports(args, reports, None, output_dir, output_formats)
+        print_reports(print_steps, reports, None, output_dir, output_formats)
         LOG.info("Compared multiple remote runs %s (matching: %s) and %s "
                  "(matching: %s)",
                  ', '.join(basename_run_names),
