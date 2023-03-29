@@ -224,24 +224,25 @@ def skip_report_dir_result(
 
     Skipping is done based on the given filter set.
     """
-    f_severities, f_checkers, f_file_path, _, _, _ = check_filter_values(args)
+    report_filter = check_filter_values(args)
 
-    if f_severities:
+    if report_filter.severity:
         severity_name = checker_labels.severity(report.checker_name)
-        if severity_name.lower() not in list(map(str.lower, f_severities)):
+        if severity_name.lower() not in \
+                list(map(str.lower, report_filter.severity)):
             return True
 
-    if f_checkers:
+    if report_filter.checkerName:
         checker_name = report.checker_name
         if not any([re.match(r'^' + c.replace("*", ".*") + '$',
                              checker_name, re.IGNORECASE)
-                    for c in f_checkers]):
+                    for c in report_filter.checkerName]):
             return True
 
-    if f_file_path:
+    if report_filter.filepath:
         if not any([re.match(r'^' + f.replace("*", ".*") + '$',
                              report.file.path, re.IGNORECASE)
-                    for f in f_file_path]):
+                    for f in report_filter.filepath]):
             return True
 
     if 'checker_msg' in args:
@@ -453,25 +454,18 @@ def check_filter_values(args):
     if not all(valid for valid in
                [validate_filter_values(*x) for x in values_to_check]):
         sys.exit(1)
-    return severities, checkers, file_path, dt_statuses, rw_statuses, \
-        bug_path_length
 
-
-def add_filter_conditions(client, args):
-    """
-    This function fills some attributes of the given report filter based on
-    the arguments which is provided in the command line.
-    """
     report_filter = ttypes.ReportFilter()
-
-    severities, checkers, file_path, dt_statuses, rw_statuses, \
-        bug_path_length = check_filter_values(args)
-
-    report_filter.isUnique = args.uniqueing == 'on'
 
     if severities:
         report_filter.severity = [
             ttypes.Severity._NAMES_TO_VALUES[x.upper()] for x in severities]
+
+    if checkers:
+        report_filter.checkerName = checkers
+
+    if file_path:
+        report_filter.filepath = file_path
 
     if dt_statuses:
         report_filter.detectionStatus = [
@@ -483,8 +477,22 @@ def add_filter_conditions(client, args):
             ttypes.ReviewStatus._NAMES_TO_VALUES[x.upper()] for x in
             rw_statuses]
 
-    if checkers:
-        report_filter.checkerName = checkers
+    if bug_path_length:
+        report_filter.bugPathLength = \
+            ttypes.BugPathLengthRange(min=bug_path_length.min,
+                                      max=bug_path_length.max)
+
+    return report_filter
+
+
+def add_filter_conditions(client, args):
+    """
+    This function fills some attributes of the given report filter based on
+    the arguments which is provided in the command line.
+    """
+    report_filter = check_filter_values(args)
+
+    report_filter.isUnique = args.uniqueing == 'on'
 
     if 'checker_msg' in args:
         report_filter.checkerMsg = args.checker_msg
@@ -497,14 +505,6 @@ def add_filter_conditions(client, args):
 
     if 'report_hash' in args:
         report_filter.reportHash = args.report_hash
-
-    if file_path:
-        report_filter.filepath = file_path
-
-    if bug_path_length:
-        report_filter.bugPathLength = \
-            ttypes.BugPathLengthRange(min=bug_path_length.min,
-                                      max=bug_path_length.max)
 
     if 'tag' in args:
         run_history_filter = ttypes.RunHistoryFilter(tagNames=args.tag)
