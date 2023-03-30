@@ -414,8 +414,23 @@ def validate_filter_values(converted_values: List[int], valid_values,
     return True
 
 
-def check_filter_values(args):
+def parse_report_filter(client, args):
+    report_filter = parse_report_filter_offline(args)
+
+    if 'tag' in args:
+        run_history_filter = ttypes.RunHistoryFilter(tagNames=args.tag)
+        run_histories = client.getRunHistory(None, None, None,
+                                             run_history_filter)
+        if run_histories:
+            report_filter.runTag = [t.id for t in run_histories]
+
+    return report_filter
+
+
+def parse_report_filter_offline(args):
     """
+    This function fills some attributes of the given report filter based on
+    the arguments which is provided in the command line.
     Check if filter values are valid values. Returns values which are checked
     or exit from the interpreter.
     """
@@ -465,29 +480,6 @@ def check_filter_values(args):
     if not all(valid for valid in
                [validate_filter_values(*x) for x in values_to_check]):
         sys.exit(1)
-
-    return report_filter
-
-
-def parse_report_filter(client, args):
-    report_filter = parse_report_filter_offline(args)
-
-    if 'tag' in args:
-        run_history_filter = ttypes.RunHistoryFilter(tagNames=args.tag)
-        run_histories = client.getRunHistory(None, None, None,
-                                             run_history_filter)
-        if run_histories:
-            report_filter.runTag = [t.id for t in run_histories]
-
-    return report_filter
-
-
-def parse_report_filter_offline(args):
-    """
-    This function fills some attributes of the given report filter based on
-    the arguments which is provided in the command line.
-    """
-    report_filter = check_filter_values(args)
 
     report_filter.isUnique = args.uniqueing == 'on'
 
