@@ -1007,6 +1007,7 @@ def get_diff_remote_runs(
     report_filter.runTag = base_run_tags
 
     cmp_data = ttypes.CompareData()
+    cmp_data.diffType = diff_type
 
     new_ids, new_run_names, new_run_tags = \
         process_run_args(client, remote_new_run_names)
