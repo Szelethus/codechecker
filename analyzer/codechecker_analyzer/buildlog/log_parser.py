@@ -677,6 +677,7 @@ def __contains_no_intrinsic_headers(dirname):
 
 def __collect_clang_compile_opts(flag_iterator, details):
     """Collect all the options for clang do not filter anything."""
+    # FIXME: This is where -omini.cc is consumed.
     if CLANG_OPTIONS.match(flag_iterator.item):
         details['analyzer_options'].append(flag_iterator.item)
         return True
@@ -847,9 +848,14 @@ def __get_output(flag_iterator, details):
     This function consumes -o flag which is followed by the output file of the
     action. This file is then collected to the buildaction object.
     """
+    # -o may be used like this: "g++ main.cpp -o main.o"
     if flag_iterator.item == '-o':
         next(flag_iterator)
         details['output'] = flag_iterator.item
+        return True
+    # Or like this: "g++ main.cpp -omain.o"
+    elif flag_iterator.item.startswith('-o'):
+        details['output'] = flag_iterator.item[2:]
         return True
 
     return False
