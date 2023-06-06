@@ -12,21 +12,23 @@ Generate a new unit test based on the skeleton
 """
 
 
+import argparse
 import os
 import sys
 
 
 def main():
-
-    try:
-        tested_module = sys.argv[1]
-    except IndexError:
-        print("Please provide a module name to be tested")
-        sys.exit(1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("name", help="Name of the test  to be created")
+    parser.add_argument("test_dir",
+                        help="Location of the test dir relative to the codechecker repository root. Example: 'analyzer/test/unit'")
+    args = parser.parse_args()
+    test_name = args.name
+    test_dir = args.test_dir
 
     current_dir = os.path.dirname(os.path.realpath(__file__))
     unit_test_path = os.path.join(current_dir, 'unit')
-    test_file_name = 'test_' + tested_module + '.py'
+    test_file_name = 'test_' + test_name + '.py'
     new_test = os.path.join(unit_test_path, test_file_name)
     if os.path.exists(new_test):
         print("Unit test already exists: " + new_test)
@@ -39,7 +41,7 @@ def main():
 
     string_to_replace = "$MODULE_NAME$"
     new_test_content = new_test_content.replace(string_to_replace,
-                                                tested_module)
+                                                test_name)
 
     print('Generating new test file ...')
     with open(new_test, 'w', encoding="utf-8", errors="ignore") as n_test:
