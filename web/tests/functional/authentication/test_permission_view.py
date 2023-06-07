@@ -116,9 +116,9 @@ class PermissionManagement(unittest.TestCase):
              'admin': ['PRODUCT_ADMIN']},
             auth_product_permissions.user)
 
-        self.assertDictContainsSubset(
-            {'ADMIN_group': ['PRODUCT_ADMIN']},
-            auth_product_permissions.group)
+        # Previously, the test files in this directory interfered at one
+        # another, and the group permission dict wasn't empty. Check git blame.
+        self.assertEqual({}, auth_product_permissions.group)
 
         # Remove previously added extra permissions.
         ret = self.root_client.removePermission(
@@ -172,14 +172,15 @@ class PermissionManagement(unittest.TestCase):
             cmd, env=cmd_env, encoding="utf-8", errors="ignore")
 
         access_control = json.loads(out)
+
+        # Previously, the test files in this directory interfered at one
+        # another, and the group permission dict wasn't empty. Check git blame.
         self.assertDictEqual({
             "version": 1,
             "global_permissions": {
                 "user_permissions": {
                     "root": ["SUPERUSER"]},
-                "group_permissions": {
-                    'admins_custom_group': ['SUPERUSER']
-                }
+                "group_permissions": {}
             },
             "product_permissions": {
                 "authentication": {
@@ -187,6 +188,5 @@ class PermissionManagement(unittest.TestCase):
                         "cc": ["PRODUCT_STORE"],
                         "john": ["PRODUCT_STORE"],
                         "admin": ["PRODUCT_ADMIN"]},
-                    "group_permissions": {
-                        'ADMIN_group': ['PRODUCT_ADMIN']}}}},
+                    "group_permissions": {}}}},
             access_control)
