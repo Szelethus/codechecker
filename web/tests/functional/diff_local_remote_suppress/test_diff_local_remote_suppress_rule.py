@@ -24,14 +24,16 @@ from codechecker_api.codeCheckerDBAccess_v6.ttypes import ReportFilter, \
 from libtest import env
 from libtest.codechecker import get_diff_results
 
-from .__init__ import init_projects
+from . import setup_class_common, teardown_class_common
 
 
 class DiffLocalRemoteSuppressRule(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        init_projects()
+    def setup_class(cls):
+        setup_class_common()
+
+    def teardown_class(cls):
+        teardown_class_common()
 
     def setup_method(self, method):
         # TEST_WORKSPACE is automatically set by test package __init__.py .

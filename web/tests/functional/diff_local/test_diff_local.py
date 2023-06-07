@@ -156,7 +156,6 @@ class DiffLocal(unittest.TestCase):
         """
         resolved_results, _, _ = get_diff_results(
             [self.base_reports], [self.new_reports], '--resolved', 'json')
-        print(resolved_results)
 
         for resolved in resolved_results:
             self.assertEqual(resolved['checker_name'], "core.CallAndMessage")
