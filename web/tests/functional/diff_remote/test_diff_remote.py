@@ -48,7 +48,7 @@ def str_to_date(date_str):
 
 class DiffRemote(unittest.TestCase):
 
-    def setUp(self):
+    def setup_method(self, method):
 
         # TEST_WORKSPACE is automatically set by test package __init__.py .
         self.test_workspace = os.environ['TEST_WORKSPACE']

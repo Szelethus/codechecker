@@ -35,7 +35,7 @@ EVENT = multiprocessing.Event()
 
 class TestProductConfigShare(unittest.TestCase):
 
-    def setUp(self):
+    def setup_method(self, method):
         """
         Set up the environment and the test module's configuration from the
         package.
@@ -223,7 +223,7 @@ class TestProductConfigShare(unittest.TestCase):
                             "the product missing should've resulted in "
                             "an error.")
 
-    def tearDown(self):
+    def teardown_method(self, method):
         """
         Clean the environment after running this test module
         """

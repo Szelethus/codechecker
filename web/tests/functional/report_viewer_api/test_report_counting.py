@@ -36,7 +36,7 @@ class TestReportFilter(unittest.TestCase):
 
     _ccClient = None
 
-    def setUp(self):
+    def setup_method(self, method):
         test_workspace = os.environ['TEST_WORKSPACE']
         self.maxDiff = None
 

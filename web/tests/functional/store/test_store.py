@@ -45,7 +45,7 @@ def _call_cmd(command, cwd=None, env=None):
 class TestStore(unittest.TestCase):
     """Test storage reports"""
 
-    def setUp(self):
+    def setup_method(self, method):
         # Get the test workspace used to cppcheck tests.
         self._test_workspace = os.environ["TEST_WORKSPACE"]
 

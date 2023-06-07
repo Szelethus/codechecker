@@ -25,7 +25,7 @@ from libtest import project
 TEST_WORKSPACE = None
 
 
-def setup_package():
+def setup_class(self):
     """Setup the environment for testing server_configuration."""
 
     global TEST_WORKSPACE
@@ -65,7 +65,7 @@ def setup_package():
     env.export_test_cfg(TEST_WORKSPACE, test_config)
 
 
-def teardown_package():
+def teardown_class(self):
     """Clean up after the test."""
 
     # TODO: If environment variable is set keep the workspace

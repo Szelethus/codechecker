@@ -22,7 +22,7 @@ from libtest import env
 
 
 class DiffRemote(unittest.TestCase):
-    def setUp(self):
+    def setup_method(self, method):
         self.test_workspace = os.environ['TEST_WORKSPACE']
 
         test_class = self.__class__.__name__

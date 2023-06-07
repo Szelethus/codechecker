@@ -28,7 +28,7 @@ class TestInstances(unittest.TestCase):
     Server instance manager tests.
     """
 
-    def setUp(self):
+    def setup_method(self, method):
         # Get the test workspace used to tests.
         self._test_workspace = os.environ['TEST_WORKSPACE']
 

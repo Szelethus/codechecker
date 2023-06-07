@@ -26,7 +26,7 @@ class TestSSL(unittest.TestCase):
     Test SSL layering on the server.
     """
 
-    def setUp(self):
+    def setup_method(self, method):
 
         # Get the test workspace used to authentication tests.
         self._test_workspace = os.environ['TEST_WORKSPACE']

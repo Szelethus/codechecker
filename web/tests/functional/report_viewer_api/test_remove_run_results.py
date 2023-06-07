@@ -29,7 +29,7 @@ class RemoveRunResults(unittest.TestCase):
 
     _ccClient = None
 
-    def setUp(self):
+    def setup_method(self, method):
         test_workspace = os.environ['TEST_WORKSPACE']
 
         test_class = self.__class__.__name__

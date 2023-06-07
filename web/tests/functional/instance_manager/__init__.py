@@ -27,7 +27,7 @@ EVENT_2 = multiprocessing.Event()
 TEST_WORKSPACE = None
 
 
-def setup_package():
+def setup_class(self):
     """Setup the environment for the tests then start the server."""
 
     global TEST_WORKSPACE
@@ -79,7 +79,7 @@ def setup_package():
     time.sleep(5)
 
 
-def teardown_package():
+def teardown_class(self):
     """Stop the CodeChecker server."""
 
     # Let the remaining CodeChecker servers die.

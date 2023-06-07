@@ -25,7 +25,7 @@ EVENT_1 = multiprocessing.Event()
 TEST_WORKSPACE = None
 
 
-def setup_package():
+def setup_class(self):
     """Setup the environment for the tests then start the server."""
 
     global TEST_WORKSPACE
@@ -69,7 +69,7 @@ def setup_package():
     codechecker.add_test_package_product(server_access, TEST_WORKSPACE)
 
 
-def teardown_package():
+def teardown_class(self):
     """Stop the CodeChecker server and clean up after the tests."""
 
     # TODO If environment variable is set keep the workspace

@@ -26,7 +26,7 @@ class TestSkeleton(unittest.TestCase):
 
     _ccClient = None
 
-    def setUp(self):
+    def setup_method(self, method):
         """
         WARNING!!!
         This is an example how to get the configurations needed by the tests.

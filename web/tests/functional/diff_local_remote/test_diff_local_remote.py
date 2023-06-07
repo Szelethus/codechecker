@@ -27,7 +27,7 @@ from libtest.codechecker import create_baseline_file, get_diff_results
 
 class LocalRemote(unittest.TestCase):
 
-    def setUp(self):
+    def setup_method(self, method):
         # TEST_WORKSPACE is automatically set by test package __init__.py .
         test_workspace = os.environ['TEST_WORKSPACE']
 

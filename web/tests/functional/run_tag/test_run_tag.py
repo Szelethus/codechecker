@@ -22,7 +22,7 @@ from libtest import env
 
 class TestRunTag(unittest.TestCase):
 
-    def setUp(self):
+    def setup_method(self, method):
         # TEST_WORKSPACE is automatically set by test package __init__.py .
         self.test_workspace = os.environ['TEST_WORKSPACE']
 
@@ -81,7 +81,7 @@ int main()
 }"""]
         self.tags = ['v1.0', 'v1.1', 'v1.2']
 
-    def tearDown(self):
+    def teardown_method(self, method):
         """Restore environment after tests have ran."""
         os.chdir(self.__old_pwd)
 

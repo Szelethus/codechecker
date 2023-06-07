@@ -27,7 +27,7 @@ TEST_WORKSPACE = None
 test_dir = os.path.dirname(os.path.realpath(__file__))
 
 
-def setup_package():
+def setup_class(self):
     """Setup the environment for the tests. """
 
     global TEST_WORKSPACE
@@ -83,7 +83,7 @@ def setup_package():
     env.export_test_cfg(TEST_WORKSPACE, test_config)
 
 
-def teardown_package():
+def teardown_class(self):
     """Clean up after the test."""
 
     # TODO: if environment variable is set keep the workspace

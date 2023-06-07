@@ -20,7 +20,7 @@ from libtest import env
 TEST_WORKSPACE = None
 
 
-def setup_package():
+def setup_class(self):
     """Setup the environment for testing detection_status."""
 
     global TEST_WORKSPACE
@@ -55,7 +55,7 @@ def setup_package():
     env.export_test_cfg(TEST_WORKSPACE, {'codechecker_cfg': codechecker_cfg})
 
 
-def teardown_package():
+def teardown_class(self):
     """Clean up after the test."""
 
     # TODO: If environment variable is set keep the workspace

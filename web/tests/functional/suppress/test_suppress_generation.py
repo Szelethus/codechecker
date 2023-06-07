@@ -46,7 +46,7 @@ class TestSuppress(unittest.TestCase):
     Test source-code level suppression data writing to suppress file.
     """
 
-    def setUp(self):
+    def setup_method(self, method):
         self._test_workspace = os.environ['TEST_WORKSPACE']
 
         self._testproject_data = env.setup_test_proj_cfg(self._test_workspace)

@@ -42,7 +42,7 @@ class TestStorageOfAnalysisStatistics(unittest.TestCase):
     This class tests the CodeChecker analysis statistics storage feature.
     """
 
-    def setUp(self):
+    def setup_method(self, method):
 
         # Get the test workspace.
         self.test_workspace = os.environ['TEST_WORKSPACE']
@@ -111,7 +111,7 @@ int main()
   xxx // Will cause a compilation error
 }"""]
 
-    def tearDown(self):
+    def teardown_method(self, method):
         """Restore environment after tests have ran."""
         os.chdir(self.__old_pwd)
 

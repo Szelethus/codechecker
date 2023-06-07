@@ -30,7 +30,7 @@ class DiffLocalRemoteSuppress(unittest.TestCase):
     def setUpClass(cls):
         init_projects()
 
-    def setUp(self):
+    def setup_method(self, method):
         # TEST_WORKSPACE is automatically set by test package __init__.py .
         test_workspace = os.environ['TEST_WORKSPACE']
 

@@ -26,7 +26,7 @@ class ConfigTests(unittest.TestCase):
 
     _ccClient = None
 
-    def setUp(self):
+    def setup_method(self, method):
         """
         Setup Configuration for tests.
         """

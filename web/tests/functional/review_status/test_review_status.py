@@ -31,7 +31,7 @@ class TestReviewStatus(unittest.TestCase):
 
     _ccClient = None
 
-    def setUp(self):
+    def setup_method(self, method):
         self.test_workspace = os.environ['TEST_WORKSPACE']
 
         test_class = self.__class__.__name__
@@ -57,7 +57,7 @@ class TestReviewStatus(unittest.TestCase):
                          'with the given name configured at the test init.')
         self._runid = test_runs[0].runId
 
-    def tearDown(self):
+    def teardown_method(self, method):
         """ Remove all review status rules after each test cases. """
         self.__remove_all_rules()
 

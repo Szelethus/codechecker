@@ -27,7 +27,7 @@ from codechecker_api.codeCheckerDBAccess_v6.ttypes import DetectionStatus
 
 class TestUpdate(unittest.TestCase):
 
-    def setUp(self):
+    def setup_method(self, method):
         self._test_workspace = os.environ.get('TEST_WORKSPACE')
 
         test_class = self.__class__.__name__

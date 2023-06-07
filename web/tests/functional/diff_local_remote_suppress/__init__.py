@@ -180,7 +180,7 @@ def init_projects():
     env.export_test_cfg(TEST_WORKSPACE, test_config)
 
 
-def setup_package():
+def setup_class(self):
     """
     The test files in this diff_local_remote_suppress test share the analyzed
     projects. These tests are checking report suppression where the order of
@@ -197,7 +197,7 @@ def setup_package():
         server_access, os.environ['TEST_WORKSPACE'])
 
 
-def teardown_package():
+def teardown_class(self):
     TEST_WORKSPACE = os.environ['TEST_WORKSPACE']
 
     check_env = env.import_test_cfg(TEST_WORKSPACE)[

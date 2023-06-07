@@ -29,7 +29,7 @@ from libtest import env
 
 class TestProducts(unittest.TestCase):
 
-    def setUp(self):
+    def setup_method(self, method):
         """
         """
 

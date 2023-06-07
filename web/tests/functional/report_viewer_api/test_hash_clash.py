@@ -48,7 +48,7 @@ def _replace_path(file_path, path):
 class HashClash(unittest.TestCase):
     """Unit test for testing hash clash handling."""
 
-    def setUp(self):
+    def setup_method(self, method):
         """
         Not much setup is needed.
         Runs and results are automatically generated.
@@ -83,7 +83,7 @@ class HashClash(unittest.TestCase):
         self._run_name = 'test_hash_clash_' + uuid4().hex
         codechecker.store(self._codechecker_cfg, self._run_name)
 
-    def tearDown(self):
+    def teardown_method(self, method):
         """
         Remove the run which was stored by this test case.
         """

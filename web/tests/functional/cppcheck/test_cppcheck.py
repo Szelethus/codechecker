@@ -73,7 +73,7 @@ class CppCheck(unittest.TestCase):
         print("Removing: " + TEST_WORKSPACE)
         shutil.rmtree(TEST_WORKSPACE, ignore_errors=True)
 
-    def setUp(self):
+    def setup_method(self, method):
 
         # Get the test workspace used to cppcheck tests.
         self._test_workspace = os.environ['TEST_WORKSPACE']

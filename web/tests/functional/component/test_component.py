@@ -112,7 +112,7 @@ class TestComponent(unittest.TestCase):
         print("Removing: " + TEST_WORKSPACE)
         shutil.rmtree(TEST_WORKSPACE, ignore_errors=True)
 
-    def setUp(self):
+    def setup_method(self, method):
         self._test_workspace = os.environ.get('TEST_WORKSPACE')
 
         test_class = self.__class__.__name__

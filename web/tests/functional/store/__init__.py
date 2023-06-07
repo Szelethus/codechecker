@@ -20,7 +20,7 @@ from libtest import plist_test
 TEST_WORKSPACE = None
 
 
-def setup_package():
+def setup_class(self):
     """Setup the environment for the tests then start the server."""
 
     global TEST_WORKSPACE
@@ -65,7 +65,7 @@ def setup_package():
         plist_test.prefix_file_path(file_name, os.path.dirname(file_name))
 
 
-def teardown_package():
+def teardown_class(self):
     """Clean up after the test."""
 
     # TODO: If environment variable is set keep the workspace
