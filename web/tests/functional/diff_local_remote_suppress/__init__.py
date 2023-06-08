@@ -10,6 +10,7 @@
 """Setup for the test package diff_local_remote_suppress."""
 
 
+import multiprocessing
 import os
 import shutil
 import sys
@@ -18,6 +19,9 @@ import uuid
 from libtest import codechecker
 from libtest import env
 from libtest import project
+
+# Stopping event for CodeChecker server.
+__STOP_SERVER = multiprocessing.Event()
 
 
 def setup_class_common():
@@ -64,20 +68,14 @@ def setup_class_common():
 
     os.environ['TEST_WORKSPACE'] = \
         env.get_workspace('diff_local_remote_suppress')
-
-    server_access = codechecker.start_or_get_server()
-    server_access['viewer_product'] = 'diff_local_remote_suppress'
-    codechecker.add_test_package_product(
-        server_access, os.environ['TEST_WORKSPACE'])
-
     TEST_WORKSPACE = os.environ['TEST_WORKSPACE']
 
-    test_project = 'cpp'
 
-    project_info = project.get_info(test_project)
-
+    # Setup environment variables for the test cases.
+    host_port_cfg = {'viewer_host': 'localhost',
+                     'viewer_port': env.get_free_port(),
+                     'viewer_product': 'diff_local_remote_suppress'}
     # Config options.
-
     codechecker_cfg = {
         'suppress_file': None,
         'skip_list_file': None,
@@ -88,17 +86,25 @@ def setup_class_common():
         'run_names': {}
     }
 
-    test_config = {}
-    test_config['test_project'] = project_info
-    test_config['codechecker_cfg'] = codechecker_cfg
+    codechecker_cfg.update(host_port_cfg)
 
     # Start or connect to the running CodeChecker server and get connection
     # details.
-
     print("This test uses a CodeChecker server... connecting...")
-    server_access = codechecker.start_or_get_server()
-    server_access['viewer_product'] = 'diff_local_remote_suppress'
-    codechecker_cfg.update(server_access)
+    codechecker.start_server(codechecker_cfg, __STOP_SERVER)
+
+    codechecker.add_test_package_product(
+        host_port_cfg, os.environ['TEST_WORKSPACE'])
+
+    TEST_WORKSPACE = os.environ['TEST_WORKSPACE']
+
+    test_project = 'cpp'
+
+    project_info = project.get_info(test_project)
+
+    test_config = {}
+    test_config['test_project'] = project_info
+    test_config['codechecker_cfg'] = codechecker_cfg
 
     env.export_test_cfg(TEST_WORKSPACE, test_config)
     cc_client = env.setup_viewer_client(TEST_WORKSPACE)
@@ -191,9 +197,13 @@ def setup_class_common():
 def teardown_class_common():
     TEST_WORKSPACE = os.environ['TEST_WORKSPACE']
 
-    check_env = env.import_test_cfg(TEST_WORKSPACE)[
-        'codechecker_cfg']['check_env']
-    codechecker.remove_test_package_product(TEST_WORKSPACE, check_env)
+    # Removing the product through this server requires credentials.
+    codechecker_cfg = env.import_test_cfg(TEST_WORKSPACE)['codechecker_cfg']
+    codechecker.remove_test_package_product(TEST_WORKSPACE,
+                                            codechecker_cfg['check_env'])
+
+    __STOP_SERVER.set()
+    __STOP_SERVER.clear()
 
     print("Removing: " + TEST_WORKSPACE)
     shutil.rmtree(TEST_WORKSPACE, ignore_errors=True)
