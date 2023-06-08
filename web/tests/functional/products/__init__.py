@@ -11,7 +11,7 @@
 Test suite to test the product management-related features.
 """
 
-
+import multiprocessing
 import os
 import shutil
 import sys
@@ -26,7 +26,7 @@ from libtest import project
 TEST_WORKSPACE = None
 
 
-def setup_class(self):
+def setup_class_common():
     """Setup the environment for testing products."""
 
     global TEST_WORKSPACE
@@ -98,7 +98,7 @@ def setup_class(self):
     env.export_test_cfg(TEST_WORKSPACE, test_config)
 
 
-def teardown_class(self):
+def teardown_class_common():
     """Clean up after the test."""
 
     # TODO: If environment variable is set keep the workspace
@@ -106,6 +106,7 @@ def teardown_class(self):
     global TEST_WORKSPACE
 
     codechecker.remove_test_package_product(TEST_WORKSPACE)
+    codechecker.close_global_server()
 
     print("Removing: " + TEST_WORKSPACE)
     shutil.rmtree(TEST_WORKSPACE, ignore_errors=True)

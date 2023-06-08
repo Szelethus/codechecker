@@ -32,8 +32,16 @@ from libtest import env
 # Stopping events for CodeChecker server.
 EVENT = multiprocessing.Event()
 
+from . import setup_class_common, teardown_class_common
+
 
 class TestProductConfigShare(unittest.TestCase):
+
+    def setup_class(cls):
+        setup_class_common()
+
+    def teardown_class(cls):
+        teardown_class_common()
 
     def setup_method(self, method):
         """
@@ -230,6 +238,7 @@ class TestProductConfigShare(unittest.TestCase):
 
         # Let the secondary CodeChecker servers die.
         EVENT.set()
+        EVENT.clear()
 
         print("Removing: " + self.test_workspace_secondary)
         shutil.rmtree(self.test_workspace_secondary, ignore_errors=True)

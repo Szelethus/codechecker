@@ -70,7 +70,6 @@ def setup_class_common():
         env.get_workspace('diff_local_remote_suppress')
     TEST_WORKSPACE = os.environ['TEST_WORKSPACE']
 
-
     # Setup environment variables for the test cases.
     host_port_cfg = {'viewer_host': 'localhost',
                      'viewer_port': env.get_free_port(),

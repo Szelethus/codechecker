@@ -26,8 +26,16 @@ from codechecker_web.shared import convert
 
 from libtest import env
 
+from . import setup_class_common, teardown_class_common
+
 
 class TestProducts(unittest.TestCase):
+
+    def setup_class(cls):
+        setup_class_common()
+
+    def teardown_class(cls):
+        teardown_class_common()
 
     def setup_method(self, method):
         """

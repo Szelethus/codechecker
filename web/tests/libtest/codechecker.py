@@ -13,7 +13,9 @@ Helper commands to run CodeChecker in the tests easier.
 import json
 import multiprocessing
 import os
+import pytest
 import shlex
+import shutil
 import stat
 import subprocess
 from subprocess import CalledProcessError
@@ -30,6 +32,8 @@ from . import project
 DEFAULT_USER_PERMISSIONS = [("cc", Permission.PRODUCT_STORE),
                             ("john", Permission.PRODUCT_STORE),
                             ("admin", Permission.PRODUCT_ADMIN)]
+
+__STOP_GLOBAL_SERVER = multiprocessing.Event()
 
 
 def call_command(cmd, cwd, env):
@@ -598,34 +602,51 @@ def start_or_get_server(auth_required=False):
             # Set up the root user and the authentication for the server.
             env.enable_auth(config_dir)
 
-        port = env.get_free_port()
-        print("Setting up CodeChecker server in " + config_dir + " :" +
-              str(port))
-
-        with open(portfile, 'w', encoding="utf-8", errors="ignore") as f:
-            f.write(str(port))
-
-        pg_config = env.get_postgresql_cfg()
-
-        server_cmd = serv_cmd(config_dir, port, pg_config)
-
-        print("Starting server...")
         server_stdout = os.path.join(config_dir,
                                      str(os.getpid()) + ".out")
+        def start_server_proc(port, config_dir):
+            print("Setting up CodeChecker server in " + config_dir + " :" +
+                  str(port))
 
-        with open(server_stdout, "w",
-                  encoding="utf-8", errors="ignore") as server_out:
-            subprocess.Popen(
-                server_cmd,
-                stdout=server_out,
-                stderr=server_out,
-                env=env.test_env(config_dir),
-                encoding="utf-8",
-                errors="ignore")
+            with open(portfile, 'w', encoding="utf-8", errors="ignore") as f:
+                f.write(str(port))
 
-            wait_for_server_start(server_stdout)
+            pg_config = env.get_postgresql_cfg()
 
-        if pg_config:
+            server_cmd = serv_cmd(config_dir, port, pg_config)
+
+            print("Starting server...")
+            print("Redirecting server output to " + server_stdout)
+            with open(server_stdout, "w",
+                      encoding="utf-8", errors="ignore") as server_out:
+                server_proc = subprocess.Popen(
+                    server_cmd,
+                    stdout=server_out,
+                    stderr=server_out,
+                    env=env.test_env(config_dir),
+                    encoding="utf-8",
+                    errors="ignore")
+
+            # Blocking termination until event is set.
+            __STOP_GLOBAL_SERVER.wait()
+            __STOP_GLOBAL_SERVER.clear()
+
+            print("Removing global server dir: " + config_dir)
+            shutil.rmtree(config_dir, ignore_errors=True)
+            # If proc is still running, stop it.
+            if server_proc.poll() is None:
+                server_proc.terminate()
+
+        port = env.get_free_port()
+        server_proc = multiprocessing.Process(
+            name='global_server',
+            target=start_server_proc,
+            args=(port, config_dir))
+
+        server_proc.start()
+        wait_for_server_start(server_stdout)
+
+        if env.get_postgresql_cfg():
             # The behaviour is that CodeChecker servers only configure a
             # 'Default' product in SQLite mode, if the server was started
             # brand new. But certain test modules might make use of a
@@ -644,6 +665,15 @@ def start_or_get_server(auth_required=False):
         'viewer_host': 'localhost',
         'viewer_port': port
     }
+
+
+@pytest.fixture(scope='session', autouse=True)
+def _close_global_server_after_all_tests_ran():
+    close_global_server()
+
+
+def close_global_server():
+    __STOP_GLOBAL_SERVER.set()
 
 
 def wait_for_server_start(stdoutfile):
