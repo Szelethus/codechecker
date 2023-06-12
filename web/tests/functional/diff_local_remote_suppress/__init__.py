@@ -7,7 +7,7 @@
 #
 # -------------------------------------------------------------------------
 
-"""Setup for the test package diff_local_remote_suppress."""
+"""Setup for the test package workspace_name."""
 
 
 import os
@@ -20,9 +20,9 @@ from libtest import env
 from libtest import project
 
 
-def setup_class_common():
+def setup_class_common(workspace_name):
     """
-    Setup the environment for testing diff_local_remote_suppress.
+    Setup the environment for testing workspace_name.
 
     Original project
     ------------------------------------------------------
@@ -63,10 +63,11 @@ def setup_class_common():
     """
 
     os.environ['TEST_WORKSPACE'] = \
-        env.get_workspace('diff_local_remote_suppress')
+        env.get_workspace(workspace_name)
 
+    print("This test uses a CodeChecker server... connecting...")
     server_access = codechecker.start_or_get_server()
-    server_access['viewer_product'] = 'diff_local_remote_suppress'
+    server_access['viewer_product'] = workspace_name
     codechecker.add_test_package_product(
         server_access, os.environ['TEST_WORKSPACE'])
 
@@ -95,9 +96,6 @@ def setup_class_common():
     # Start or connect to the running CodeChecker server and get connection
     # details.
 
-    print("This test uses a CodeChecker server... connecting...")
-    server_access = codechecker.start_or_get_server()
-    server_access['viewer_product'] = 'diff_local_remote_suppress'
     codechecker_cfg.update(server_access)
 
     env.export_test_cfg(TEST_WORKSPACE, test_config)
@@ -191,9 +189,9 @@ def setup_class_common():
 def teardown_class_common():
     TEST_WORKSPACE = os.environ['TEST_WORKSPACE']
 
-    check_env = env.import_test_cfg(TEST_WORKSPACE)[
-        'codechecker_cfg']['check_env']
-    codechecker.remove_test_package_product(TEST_WORKSPACE, check_env)
+    #check_env = env.import_test_cfg(TEST_WORKSPACE)[
+    #    'codechecker_cfg']['check_env']
+    #codechecker.remove_test_package_product(TEST_WORKSPACE, check_env)
 
-    print("Removing: " + TEST_WORKSPACE)
-    shutil.rmtree(TEST_WORKSPACE, ignore_errors=True)
+    #print("Removing: " + TEST_WORKSPACE)
+    #shutil.rmtree(TEST_WORKSPACE, ignore_errors=True)
