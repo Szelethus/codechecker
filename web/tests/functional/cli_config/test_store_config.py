@@ -26,7 +26,7 @@ class TestStoreConfig(unittest.TestCase):
     _ccClient = None
 
     def setup_class(self):
-        setup_class_common()
+        setup_class_common("store_config")
 
     def teardown_class(self):
         teardown_class_common()

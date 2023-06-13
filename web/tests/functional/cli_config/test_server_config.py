@@ -27,7 +27,7 @@ class TestServerConfig(unittest.TestCase):
     _ccClient = None
 
     def setup_class(self):
-        setup_class_common()
+        setup_class_common("server_config")
 
     def teardown_class(self):
         teardown_class_common()
