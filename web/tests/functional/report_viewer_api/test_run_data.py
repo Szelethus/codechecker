@@ -20,10 +20,18 @@ from libtest import env
 from codechecker_api.codeCheckerDBAccess_v6.ttypes import DetectionStatus, \
     Order, ReportFilter, RunFilter, RunSortMode, RunSortType
 
+from . import setup_class_common, teardown_class_common
+
 
 class TestRunData(unittest.TestCase):
 
     _ccClient = None
+
+    def setup_class(cls):
+        setup_class_common("run_data")
+
+    def teardown_class(cls):
+        teardown_class_common()
 
     def setup_method(self, method):
         test_workspace = os.environ['TEST_WORKSPACE']

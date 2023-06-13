@@ -27,10 +27,18 @@ from libtest.thrift_client_to_db import get_all_run_results
 from libtest.result_compare import find_all
 from libtest import env
 
+from . import setup_class_common, teardown_class_common
+
 
 class RunResults(unittest.TestCase):
 
     _ccClient = None
+
+    def setup_class(cls):
+        setup_class_common("get_run_results")
+
+    def teardown_class(cls):
+        teardown_class_common()
 
     def setup_method(self, method):
         test_workspace = os.environ['TEST_WORKSPACE']

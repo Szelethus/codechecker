@@ -23,11 +23,19 @@ from libtest import codechecker
 from libtest import env
 from libtest import project
 
+from . import setup_class_common, teardown_class_common
+
 
 class RemoveRunResults(unittest.TestCase):
     """ Tests for removing run results. """
 
     _ccClient = None
+
+    def setup_class(cls):
+        setup_class_common("remove_run_results")
+
+    def teardown_class(cls):
+        teardown_class_common()
 
     def setup_method(self, method):
         test_workspace = os.environ['TEST_WORKSPACE']

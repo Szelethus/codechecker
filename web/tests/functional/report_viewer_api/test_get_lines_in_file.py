@@ -22,10 +22,18 @@ from codechecker_api.codeCheckerDBAccess_v6.ttypes import Encoding, \
 
 from codechecker_web.shared import convert
 
+from . import setup_class_common, teardown_class_common
+
 
 class TestGetLinesInFile(unittest.TestCase):
 
     _ccClient = None
+
+    def setup_class(cls):
+        setup_class_common("get_lines_in_file")
+
+    def teardown_class(cls):
+        teardown_class_common()
 
     def setup_method(self, method):
         test_workspace = os.environ['TEST_WORKSPACE']

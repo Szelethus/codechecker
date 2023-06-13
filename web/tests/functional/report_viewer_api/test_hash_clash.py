@@ -26,6 +26,8 @@ from libtest import codechecker
 from codechecker_api.codeCheckerDBAccess_v6.ttypes import Encoding, \
     RunFilter, ReportFilter
 
+from . import setup_class_common, teardown_class_common
+
 
 def _generate_content(cols, lines):
     """Generates a random file content string."""
@@ -47,6 +49,12 @@ def _replace_path(file_path, path):
 
 class HashClash(unittest.TestCase):
     """Unit test for testing hash clash handling."""
+
+    def setup_class(cls):
+        setup_class_common("hash_clash")
+
+    def teardown_class(cls):
+        teardown_class_common()
 
     def setup_method(self, method):
         """
