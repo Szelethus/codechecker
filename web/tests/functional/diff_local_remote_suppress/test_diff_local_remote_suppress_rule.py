@@ -30,7 +30,7 @@ from . import setup_class_common, teardown_class_common
 class DiffLocalRemoteSuppressRule(unittest.TestCase):
 
     def setup_class(cls):
-        setup_class_common("1")
+        setup_class_common("diff_local_remote_suppress_rule")
 
     def teardown_class(cls):
         teardown_class_common()

@@ -32,8 +32,17 @@ from libtest import env
 # Stopping events for CodeChecker server.
 EVENT = multiprocessing.Event()
 
+from . import setup_class_common, teardown_class_common
+
 
 class TestProductConfigShare(unittest.TestCase):
+
+    def setup_class(cls):
+        cls.product_name = "config_db_share"
+        setup_class_common("config_db_share")
+
+    def teardown_class(cls):
+        teardown_class_common()
 
     def setup_method(self, method):
         """
@@ -132,8 +141,8 @@ class TestProductConfigShare(unittest.TestCase):
 
         # Check if the main server's product is visible on the second server.
         self.assertEqual(
-            self._pr_client_2.getProducts('producttest', None)[0].endpoint,
-            'producttest',
+            self._pr_client_2.getProducts(self.product_name, None)[0].endpoint,
+            self.product_name,
             "Main server's product was not loaded by the secondary server.")
 
         def create_test_product(product_name, product_endpoint):

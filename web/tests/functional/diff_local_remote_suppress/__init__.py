@@ -189,9 +189,9 @@ def setup_class_common(workspace_name):
 def teardown_class_common():
     TEST_WORKSPACE = os.environ['TEST_WORKSPACE']
 
-    #check_env = env.import_test_cfg(TEST_WORKSPACE)[
-    #    'codechecker_cfg']['check_env']
-    #codechecker.remove_test_package_product(TEST_WORKSPACE, check_env)
+    check_env = env.import_test_cfg(TEST_WORKSPACE)[
+        'codechecker_cfg']['check_env']
+    codechecker.remove_test_package_product(TEST_WORKSPACE, check_env)
 
-    #print("Removing: " + TEST_WORKSPACE)
-    #shutil.rmtree(TEST_WORKSPACE, ignore_errors=True)
+    print("Removing: " + TEST_WORKSPACE)
+    shutil.rmtree(TEST_WORKSPACE, ignore_errors=True)
