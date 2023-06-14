@@ -16,9 +16,7 @@ import shutil
 import sys
 import shlex
 import unittest
-import uuid
 
-from libtest import codechecker
 from libtest import env
 from libtest import project
 from libtest.codechecker import call_command

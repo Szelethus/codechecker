@@ -20,7 +20,6 @@ import unittest
 
 from codechecker_server import instance_manager
 
-from libtest import codechecker
 from libtest import env
 from libtest.codechecker import start_server
 

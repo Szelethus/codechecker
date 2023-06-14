@@ -13,7 +13,6 @@ information (analysis command ...) are not available/stored.
 """
 
 
-import fnmatch
 import os
 import shutil
 import sys
@@ -22,7 +21,6 @@ import uuid
 
 from libtest import codechecker
 from libtest import env
-from libtest import plist_test
 from libtest import project
 from libtest.debug_printer import print_run_results
 from libtest.thrift_client_to_db import get_all_run_results

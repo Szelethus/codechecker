@@ -17,7 +17,6 @@ import os
 import shutil
 import subprocess
 import unittest
-import time
 import zipfile
 
 from tempfile import TemporaryDirectory

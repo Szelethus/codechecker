@@ -13,9 +13,7 @@ server_configuration function test.
 
 import os
 import shutil
-import sys
 import unittest
-import uuid
 
 from codechecker_api_shared.ttypes import Permission
 from codechecker_api_shared.ttypes import RequestFailed
@@ -24,7 +22,6 @@ from codechecker_web.shared import convert
 
 from libtest import codechecker
 from libtest import env
-from libtest import project
 
 
 class ConfigTests(unittest.TestCase):

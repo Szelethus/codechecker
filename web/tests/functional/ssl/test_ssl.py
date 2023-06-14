@@ -14,7 +14,6 @@ import multiprocessing
 import os
 import shutil
 import subprocess
-import time
 import unittest
 
 from codechecker_api_shared.ttypes import RequestFailed

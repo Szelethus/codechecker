@@ -29,10 +29,10 @@ class TestGetLinesInFile(unittest.TestCase):
 
     _ccClient = None
 
-    def setup_class(cls):
+    def setup_class(self):
         setup_class_common("get_lines_in_file")
 
-    def teardown_class(cls):
+    def teardown_class(self):
         teardown_class_common()
 
     def setup_method(self, method):

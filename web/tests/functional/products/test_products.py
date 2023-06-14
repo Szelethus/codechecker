@@ -31,10 +31,10 @@ from . import setup_class_common, teardown_class_common
 
 class TestProducts(unittest.TestCase):
 
-    def setup_class(cls):
+    def setup_class(self):
         setup_class_common("products")
 
-    def teardown_class(cls):
+    def teardown_class(self):
         teardown_class_common()
 
     def setup_method(self, method):

@@ -12,7 +12,6 @@
 import json
 import os
 import shutil
-import time
 import unittest
 
 from codechecker_api.codeCheckerDBAccess_v6.ttypes import DetectionStatus, \

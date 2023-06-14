@@ -37,11 +37,11 @@ EVENT = multiprocessing.Event()
 
 class TestProductConfigShare(unittest.TestCase):
 
-    def setup_class(cls):
-        cls.product_name = "config_db_share"
+    def setup_class(self):
+        (self).product_name = "config_db_share"
         setup_class_common("config_db_share")
 
-    def teardown_class(cls):
+    def teardown_class(self):
         teardown_class_common()
 
     def setup_method(self, method):

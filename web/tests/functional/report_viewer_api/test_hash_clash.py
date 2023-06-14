@@ -50,10 +50,10 @@ def _replace_path(file_path, path):
 class HashClash(unittest.TestCase):
     """Unit test for testing hash clash handling."""
 
-    def setup_class(cls):
+    def setup_class(self):
         setup_class_common("hash_clash")
 
-    def teardown_class(cls):
+    def teardown_class(self):
         teardown_class_common()
 
     def setup_method(self, method):

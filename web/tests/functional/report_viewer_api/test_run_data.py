@@ -27,10 +27,10 @@ class TestRunData(unittest.TestCase):
 
     _ccClient = None
 
-    def setup_class(cls):
+    def setup_class(self):
         setup_class_common("run_data")
 
-    def teardown_class(cls):
+    def teardown_class(self):
         teardown_class_common()
 
     def setup_method(self, method):
