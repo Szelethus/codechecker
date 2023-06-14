@@ -57,7 +57,8 @@ class CppCheck(unittest.TestCase):
         codechecker_cfg.update(server_access)
 
         # Export the test configuration to the workspace.
-        env.export_test_cfg(TEST_WORKSPACE, {'codechecker_cfg': codechecker_cfg})
+        env.export_test_cfg(TEST_WORKSPACE,
+                            {'codechecker_cfg': codechecker_cfg})
 
     def teardown_class(self):
         """Clean up after the test."""

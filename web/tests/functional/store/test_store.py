@@ -76,7 +76,8 @@ class TestStore(unittest.TestCase):
         codechecker_cfg.update(server_access)
 
         # Export the test configuration to the workspace.
-        env.export_test_cfg(TEST_WORKSPACE, {'codechecker_cfg': codechecker_cfg})
+        env.export_test_cfg(TEST_WORKSPACE,
+                            {'codechecker_cfg': codechecker_cfg})
 
         # Copy test files to a temporary directory not to modify the
         # files in the repository.

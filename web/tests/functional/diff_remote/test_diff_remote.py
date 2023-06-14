@@ -79,7 +79,8 @@ class DiffRemote(unittest.TestCase):
 
         # Copy the test project to the workspace. The tests should
         # work only on this test project.
-        test_proj_path_update = os.path.join(TEST_WORKSPACE, "test_proj_update")
+        test_proj_path_update = \
+            os.path.join(TEST_WORKSPACE, "test_proj_update")
         shutil.copytree(project.path(test_project), test_proj_path_update)
 
         project_info['project_path_base'] = test_proj_path_base
@@ -120,7 +121,8 @@ class DiffRemote(unittest.TestCase):
 
         # Base analysis
 
-        altered_file = os.path.join(test_proj_path_base, "call_and_message.cpp")
+        altered_file = os.path.join(test_proj_path_base,
+                                    "call_and_message.cpp")
         project.insert_suppression(altered_file)
         codechecker_cfg['reportdir'] = os.path.join(test_proj_path_base,
                                                     'reports')
@@ -142,7 +144,8 @@ class DiffRemote(unittest.TestCase):
             sys.exit(1)
 
         # Store with a literal ':' in the name.
-        ret = codechecker.store(codechecker_cfg, test_project_name_base + ":base")
+        ret = codechecker.store(codechecker_cfg,
+                                test_project_name_base + ":base")
         if ret:
             sys.exit(1)
 
@@ -169,7 +172,8 @@ class DiffRemote(unittest.TestCase):
             sys.exit(1)
 
         # Store with a literal ':' in the name.
-        ret = codechecker.store(codechecker_cfg, test_project_name_new + ":new")
+        ret = codechecker.store(codechecker_cfg,
+                                test_project_name_new + ":new")
         if ret:
             sys.exit(1)
 
@@ -177,7 +181,8 @@ class DiffRemote(unittest.TestCase):
         codechecker_cfg['reportdir'] = os.path.join(test_proj_path_update,
                                                     'reports')
 
-        test_project_name_update = project_info['name'] + '_' + uuid.uuid4().hex
+        test_project_name_update = \
+            project_info['name'] + '_' + uuid.uuid4().hex
         codechecker_cfg['tag'] = 't1'
         codechecker_cfg['checkers'] = ['-d', 'core.CallAndMessage',
                                        '-e', 'core.StackAddressEscape'
@@ -186,7 +191,8 @@ class DiffRemote(unittest.TestCase):
         codechecker_cfg['reportdir'] = os.path.join(test_proj_path_update,
                                                     'reports')
 
-        ret = codechecker.log_and_analyze(codechecker_cfg, test_proj_path_update)
+        ret = codechecker.log_and_analyze(codechecker_cfg,
+                                          test_proj_path_update)
         if ret:
             sys.exit(1)
 
@@ -209,7 +215,8 @@ class DiffRemote(unittest.TestCase):
             sys.exit(1)
 
         codechecker_cfg['tag'] = 't3'
-        ret = codechecker.log_and_analyze(codechecker_cfg, test_proj_path_update)
+        ret = codechecker.log_and_analyze(codechecker_cfg,
+                                          test_proj_path_update)
         if ret:
             sys.exit(1)
 

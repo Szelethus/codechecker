@@ -73,7 +73,8 @@ class TestInstances(unittest.TestCase):
 
         if host_port_cfg['viewer_port'] == \
                 test_config['codechecker_1']['viewer_port']:
-            host_port_cfg['viewer_port'] = int(host_port_cfg['viewer_port']) + 1
+            host_port_cfg['viewer_port'] = \
+                int(host_port_cfg['viewer_port']) + 1
 
         codechecker_cfg.update(host_port_cfg)
         test_config['codechecker_2'] = codechecker_cfg

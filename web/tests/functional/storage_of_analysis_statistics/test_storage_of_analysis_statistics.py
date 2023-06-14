@@ -28,7 +28,6 @@ from libtest import codechecker
 from libtest import env
 
 
-
 def extract(zip_file, output_dir):
     with zipfile.ZipFile(zip_file, 'r', allowZip64=True) as zipf:
         try:
@@ -84,7 +83,8 @@ class TestStorageOfAnalysisStatistics(unittest.TestCase):
         # Export configuration for the tests.
         env.export_test_cfg(TEST_WORKSPACE, test_config)
 
-        # Enable storage of analysis statistics and start the CodeChecker server.
+        # Enable storage of analysis statistics and start the CodeChecker
+        # server.
         env.enable_storage_of_analysis_statistics(TEST_WORKSPACE)
         print("Starting server to get results")
         server_access = codechecker.start_server(codechecker_cfg, EVENT_1)

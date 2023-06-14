@@ -47,7 +47,8 @@ class DiffRemote(unittest.TestCase):
                           encoding='utf-8',
                           errors='ignore') as plist_file:
                     content = plist_file.read()
-                    new_content = content.replace("$FILE_PATH$", TEST_WORKSPACE)
+                    new_content = content.replace("$FILE_PATH$",
+                                                  TEST_WORKSPACE)
                     plist_file.seek(0)
                     plist_file.truncate()
                     plist_file.write(new_content)

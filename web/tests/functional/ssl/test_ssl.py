@@ -65,7 +65,8 @@ class TestSSL(unittest.TestCase):
         # Enable SSL
         # ON travis auto-test fails because due to the environment
         # self signed certs are not accepted
-        # [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:661)
+        # [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed
+        # (_ssl.c:661)
         # Operation not permitted
         # Will need to solve this to re-enable SSL in this test.
         # env.enable_ssl(TEST_WORKSPACE)

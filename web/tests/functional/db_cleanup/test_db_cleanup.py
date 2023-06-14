@@ -52,7 +52,8 @@ class TestDbCleanup(unittest.TestCase):
             'analyzers': ['clangsa', 'clang-tidy']
         }
 
-        env.export_test_cfg(TEST_WORKSPACE, {'codechecker_cfg': codechecker_cfg})
+        env.export_test_cfg(TEST_WORKSPACE,
+                            {'codechecker_cfg': codechecker_cfg})
 
     def teardown_class(self):
         """Clean up after the test."""

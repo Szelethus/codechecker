@@ -116,7 +116,8 @@ class TestCmdline(unittest.TestCase):
             sys.exit(1)
         print("Analyzing the test project was successful.")
 
-        codechecker_cfg['run_names'] = [test_project_name_1, test_project_name_2]
+        codechecker_cfg['run_names'] = [test_project_name_1,
+                                        test_project_name_2]
 
         test_config['codechecker_cfg'] = codechecker_cfg
 

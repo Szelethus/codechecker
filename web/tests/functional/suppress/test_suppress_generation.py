@@ -63,6 +63,7 @@ def _generate_suppress_file(suppress_file):
 
     s_file.close()
 
+
 def call_cmd(command, cwd, env):
     try:
         print(' '.join(command))
@@ -150,7 +151,8 @@ class TestSuppress(unittest.TestCase):
         test_project_name_dup = test_project_name + "_duplicate"
         ret = codechecker.store(codechecker_cfg, test_project_name_dup)
 
-        codechecker_cfg['run_names'] = [test_project_name, test_project_name_dup]
+        codechecker_cfg['run_names'] = [test_project_name,
+                                        test_project_name_dup]
         test_config['codechecker_cfg'] = codechecker_cfg
 
         env.export_test_cfg(TEST_WORKSPACE, test_config)

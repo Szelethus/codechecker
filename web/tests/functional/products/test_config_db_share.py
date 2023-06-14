@@ -13,6 +13,8 @@ environment.
 """
 
 
+from . import setup_class_common, teardown_class_common
+
 from copy import deepcopy
 import multiprocessing
 import os
@@ -31,8 +33,6 @@ from libtest import env
 
 # Stopping events for CodeChecker server.
 EVENT = multiprocessing.Event()
-
-from . import setup_class_common, teardown_class_common
 
 
 class TestProductConfigShare(unittest.TestCase):

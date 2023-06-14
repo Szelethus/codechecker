@@ -53,7 +53,8 @@ class LocalRemote(unittest.TestCase):
 
         # Copy the test project to the workspace. The tests should
         # work only on this test project.
-        test_proj_path_remote = os.path.join(TEST_WORKSPACE, "test_proj_remote")
+        test_proj_path_remote = os.path.join(TEST_WORKSPACE,
+                                             "test_proj_remote")
         shutil.copytree(project.path(test_project), test_proj_path_remote)
 
         project_info['project_path_local'] = test_proj_path_local
@@ -93,7 +94,8 @@ class LocalRemote(unittest.TestCase):
         codechecker_cfg.update(server_access)
 
         # Analyze local, these reports will not be stored to the server.
-        altered_file = os.path.join(test_proj_path_local, "call_and_message.cpp")
+        altered_file = os.path.join(test_proj_path_local,
+                                    "call_and_message.cpp")
         project.insert_suppression(altered_file)
 
         codechecker_cfg['reportdir'] = os.path.join(test_proj_path_local,
@@ -101,19 +103,22 @@ class LocalRemote(unittest.TestCase):
         codechecker_cfg['checkers'] = ['-e', 'core.CallAndMessage',
                                        '-d', 'core.NullDereference']
 
-        ret = codechecker.log_and_analyze(codechecker_cfg, test_proj_path_local)
+        ret = codechecker.log_and_analyze(codechecker_cfg,
+                                          test_proj_path_local)
         if ret:
             sys.exit(1)
         print('Analyzing local was successful.')
 
         # Store results to the remote server.
-        test_project_name_remote = project_info['name'] + '_' + uuid.uuid4().hex
+        test_project_name_remote = \
+            project_info['name'] + '_' + uuid.uuid4().hex
         ret = codechecker.store(codechecker_cfg, test_project_name_remote)
         if ret:
             sys.exit(1)
 
         # Remote analysis, results will be stored to the remote server.
-        altered_file = os.path.join(test_proj_path_local, "call_and_message.cpp")
+        altered_file = os.path.join(test_proj_path_local,
+                                    "call_and_message.cpp")
         project.insert_suppression(altered_file)
 
         codechecker_cfg['reportdir'] = os.path.join(test_proj_path_remote,
@@ -121,13 +126,14 @@ class LocalRemote(unittest.TestCase):
         codechecker_cfg['checkers'] = ['-d', 'core.CallAndMessage',
                                        '-e', 'core.NullDereference']
 
-        ret = codechecker.log_and_analyze(codechecker_cfg, test_proj_path_remote)
+        ret = codechecker.log_and_analyze(codechecker_cfg,
+                                          test_proj_path_remote)
         if ret:
             sys.exit(1)
         print('Analyzing new was successful.')
 
-        # Store results again to the remote server. We need this second store to
-        # set the detection status to the required states.
+        # Store results again to the remote server. We need this second store
+        # to set the detection status to the required states.
         ret = codechecker.store(codechecker_cfg, test_project_name_remote)
         if ret:
             sys.exit(1)
