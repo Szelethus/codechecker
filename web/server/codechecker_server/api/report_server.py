@@ -615,7 +615,7 @@ def get_diff_bug_id_filter(run_ids, tag_ids, open_reports_date):
 
     if tag_ids:
         AND.append(RunHistory.id.in_(tag_ids))
-        AND.append(get_open_reports_date_filter_query())
+        # AND.append(get_open_reports_date_filter_query())
 
     if open_reports_date:
         date = datetime.fromtimestamp(open_reports_date)
@@ -1981,6 +1981,7 @@ class ThriftRequestHandler:
                     q = q.having(or_(*OR))
 
                 q = q.limit(limit).offset(offset)
+                print(q)
 
                 query_result = q.all()
 
