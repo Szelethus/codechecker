@@ -20,6 +20,9 @@ from ..analyzer_result import AnalyzerResultBase
 
 LOG = logging.getLogger('report-converter')
 
+# https://gcc.gnu.org/onlinedocs/gcc-13.2.0/gcc/Diagnostic-Message-Formatting-Options.html
+#TODO: Errors, fixits
+
 
 class AnalyzerResult(AnalyzerResultBase):
     """ Transform analyzer result of the FB Infer. """
@@ -83,12 +86,13 @@ class AnalyzerResult(AnalyzerResultBase):
     def __parse_report(self, bug) -> Optional[Report]:
         """ Parse the given report and create a message from them. """
 
-        assert bug['kind'] == "warning"
+        if bug['kind'] != "warning":
+            return None
 
         checker_name = bug['option']
         message = bug['message']
 
-        locations = bug['locations'][0]['start']
+        locations = bug['locations'][0]['caret']
         line = int(locations['line'])
         col = int(locations['column'])
         if col < 0:
@@ -99,21 +103,43 @@ class AnalyzerResult(AnalyzerResultBase):
             return None
 
         report = Report(
-            get_or_create_file(
+            file=get_or_create_file(
                 os.path.abspath(source_path), self.__file_cache),
-            line, col, message, checker_name,
-            bug_path_events=[])
+            line=line,
+            column=col,
+            message=message,
+            checker_name=checker_name,
+            bug_path_events=[],
+            notes=[])
+        
+        if 'path' in bug:
+            for bug_trace in bug['path']:
+                event = self.__parse_bug_trace(bug_trace)
 
-        for bug_trace in bug['path']:
-            event = self.__parse_bug_trace(bug_trace)
+                if event:
+                    report.bug_path_events.append(event)
 
-            if event:
-                report.bug_path_events.append(event)
+        for child in bug['children']:
+            if child['kind'] == "note":
+                event = self.__parse_note(child)
+
+                if event:
+                    report.notes.append(event)
 
         report.bug_path_events.append(BugPathEvent(
             report.message, report.file, report.line, report.column))
 
         return report
+
+    def __parse_note(self, event) -> Optional[BugPathEvent]:
+        locations = event['locations'][0]['caret']
+        source_path = self.__get_abs_path(locations['file'])
+
+        return BugPathEvent(
+            event['message'],
+            get_or_create_file(source_path, self.__file_cache),
+            int(locations['line']),
+            int(locations['column']))
 
     def __parse_bug_trace(self, bug_trace) -> Optional[BugPathEvent]:
         """ Creates event from a bug trace element. """
