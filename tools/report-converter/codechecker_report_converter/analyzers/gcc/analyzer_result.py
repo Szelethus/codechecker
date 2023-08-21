@@ -86,6 +86,9 @@ class AnalyzerResult(AnalyzerResultBase):
     def __parse_report(self, bug) -> Optional[Report]:
         """ Parse the given report and create a message from them. """
 
+        if 'kind' not in bug:
+            return None
+
         if bug['kind'] != "warning":
             return None
 
