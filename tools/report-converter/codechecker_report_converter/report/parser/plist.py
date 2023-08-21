@@ -492,6 +492,8 @@ class Parser(BaseParser):
         files = set()
         for report in reports:
             files.update(report.original_files)
+        print(files)
+        files.discard(None)
 
         file_index_map: Dict[str, int] = {}
         for idx, file_path in enumerate(sorted(files)):

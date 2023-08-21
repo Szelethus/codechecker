@@ -9,6 +9,7 @@
 import json
 import logging
 import os
+import sys
 
 from typing import Dict, List, Optional
 
@@ -60,6 +61,8 @@ class AnalyzerResult(AnalyzerResultBase):
             LOG.error("Failed to parse the given analyzer result '%s'. Please "
                       "give an infer output directory which contains a valid "
                       "'report.json' file.", result_file_path)
+        except json.decoder.JSONDecodeError:
+            LOG.error(f"Failed to parse {result_file_path}!")
             return reports
 
         for bug in bugs:
@@ -81,7 +84,8 @@ class AnalyzerResult(AnalyzerResultBase):
         if os.path.exists(full_path):
             return full_path
 
-        LOG.warning("No source file found: %s", source_path)
+        LOG.error("No source file found: %s", source_path)
+        sys.exit(1)
 
     def __parse_report(self, bug) -> Optional[Report]:
         """ Parse the given report and create a message from them. """
@@ -136,6 +140,9 @@ class AnalyzerResult(AnalyzerResultBase):
 
     def __parse_note(self, event) -> Optional[BugPathEvent]:
         locations = event['locations'][0]['caret']
+        # FIXME: How should we deal with these?
+        if locations['file'] == "<built-in>":
+            return None
         source_path = self.__get_abs_path(locations['file'])
 
         return BugPathEvent(
@@ -148,6 +155,9 @@ class AnalyzerResult(AnalyzerResultBase):
         """ Creates event from a bug trace element. """
 
         location = bug_trace['location']
+        # FIXME: How should we deal with these?
+        if location['file'] == "<built-in>":
+            return None
         source_path = self.__get_abs_path(location['file'])
         if not source_path:
             return None
