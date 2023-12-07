@@ -49,10 +49,11 @@ class ReviewStatusHandler:
         'checker_name',
         'report_hash']
 
+    # TODO: Read the commit message where THIS current line was committed!
+    # That will tell you why "ignore" option is not found in this list.
     ALLOWED_ACTIONS = [
         'review_status',
-        'reason',
-        'ignore']
+        'reason']
 
     def __init__(self, source_root=''):
         """
