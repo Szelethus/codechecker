@@ -26,7 +26,8 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import sqlalchemy
 from sqlalchemy.sql.expression import or_, and_, not_, func, \
-    asc, desc, union_all, select, bindparam, literal_column
+        asc, desc, union_all, select, bindparam, literal_column, except_, \
+        intersect
 from sqlalchemy.orm import contains_eager
 
 import codechecker_api_shared
@@ -219,12 +220,13 @@ def process_report_filter(
     cmp_filter_expr, join_tables = process_cmp_data_filter(
         session, run_ids, report_filter, cmp_data)
 
-    print("---------------____")
-    print("---------------____")
-    print("---------------____")
-    print(cmp_filter_expr)
-    print("---------------____")
-    print("---------------____")
+    if cmp_filter_expr is not None:
+        print("---------------____")
+        print("--------cmp_filter_expr-------____")
+        print(cmp_filter_expr)
+        print(cmp_filter_expr.compile().params)
+        print("---------------____")
+        print("---------------____")
 
     if cmp_filter_expr is not None:
         AND.append(cmp_filter_expr)
@@ -610,7 +612,7 @@ def get_open_reports_date_filter_query_old(tbl=Report, date=RunHistory.time):
 
 def get_diff_bug_id_query(session, run_ids, tag_ids, open_reports_date):
     """ Get bug id query for diff. """
-    q = session.query(Report.bug_id.distinct(), Report.path_length)
+    q = session.query(Report.bug_id.distinct().label("id"), Report.path_length.label("length"))
 
     if run_ids:
         q = q.filter(Report.run_id.in_(run_ids))
@@ -705,31 +707,33 @@ def process_cmp_data_filter(session, run_ids, report_filter, cmp_data):
         return and_(diff_filter), join_tables
 
     query_base = get_diff_bug_id_query(session, run_ids, base_tag_ids,
-                                       base_open_reports_date)
-    print("////////////////////////////////////////")
-    print("////////////////////////////////////////")
-    print(query_base)
-    print("////////////////////////////////////////")
-    print("////////////////////////////////////////")
+                                       base_open_reports_date).subquery()
     query_base_runs = get_diff_run_id_query(session, run_ids, base_tag_ids)
 
     query_new = get_diff_bug_id_query(session, cmp_data.runIds,
                                       cmp_data.runTag,
-                                      cmp_data.openReportsDate)
+                                      cmp_data.openReportsDate).subquery()
     query_new_runs = get_diff_run_id_query(session, cmp_data.runIds,
                                            cmp_data.runTag)
 
+    print("////////////////////////////////////////")
+    print("/////////////////except/////////////////")
+    print(select(except_(query_new, query_base).subquery().id))
+    print("////////////////////////////////////////")
+    print("////////////////////////////////////////")
+
     AND = []
     if cmp_data.diffType == DiffType.NEW:
-        return and_(Report.bug_id.in_(query_new.except_(query_base).with_entities(Report.bug_id)),
+        #return and_(Report.bug_id.in_(select(Report.id).from_statement(query_new.except_(query_base))),
+        return and_(Report.bug_id.in_(except_(query_new, query_base)),
                     Report.run_id.in_(query_new_runs)), [Run]
 
     elif cmp_data.diffType == DiffType.RESOLVED:
-        return and_(Report.bug_id.in_(query_base.except_(query_new).with_entities(Report.bug_id)),
+        return and_(Report.bug_id.in_(except_(query_base, query_new)),
                     Report.run_id.in_(query_base_runs)), [Run]
 
     elif cmp_data.diffType == DiffType.UNRESOLVED:
-        return and_(Report.bug_id.in_(query_base.intersect(query_new).with_entities(Report.bug_id)),
+        return and_(Report.bug_id.in_(intersect(query_base, query_new)),
                     Report.run_id.in_(query_new_runs)), [Run]
 
     else:
