@@ -28,7 +28,7 @@ import sqlalchemy
 from sqlalchemy.sql.expression import or_, and_, not_, func, \
         asc, desc, union_all, select, bindparam, literal_column, except_, \
         intersect
-from sqlalchemy.orm import contains_eager
+from sqlalchemy.orm import contains_eager, aliased
 
 import codechecker_api_shared
 from codechecker_api.codeCheckerDBAccess_v6 import constants, ttypes
@@ -610,10 +610,8 @@ def get_open_reports_date_filter_query_old(tbl=Report, date=RunHistory.time):
     return tbl.detected_at <= date
 
 
-def get_diff_bug_id_query(session, run_ids, tag_ids, open_reports_date):
+def get_diff_bug_id_query_impl(q, run_ids, tag_ids, open_reports_date):
     """ Get bug id query for diff. """
-    q = session.query(Report.bug_id.distinct().label("id"), Report.path_length.label("length"))
-
     if run_ids:
         q = q.filter(Report.run_id.in_(run_ids))
         if not tag_ids and not open_reports_date:
@@ -632,6 +630,15 @@ def get_diff_bug_id_query(session, run_ids, tag_ids, open_reports_date):
 
     return q
 
+def get_diff_bug_id_query(session, run_ids, tag_ids, open_reports_date):
+    """ Get bug id query for diff. """
+    q = session.query(Report.bug_id.distinct().label("id"))
+    return get_diff_bug_id_query_impl(q, run_ids, tag_ids, open_reports_date)
+
+def get_diff_bug_id_query_with_length(session, run_ids, tag_ids, open_reports_date):
+    """ Get bug id query for diff. """
+    q = session.query(Report.bug_id.distinct().label("id"), Report.path_length.label("length"))
+    return get_diff_bug_id_query_impl(q, run_ids, tag_ids, open_reports_date)
 
 def get_diff_bug_id_filter(run_ids, tag_ids, open_reports_date):
     """ Get bug id filter for diff. """
@@ -706,43 +713,46 @@ def process_cmp_data_filter(session, run_ids, report_filter, cmp_data):
 
         return and_(diff_filter), join_tables
 
-    query_base = get_diff_bug_id_query(session, run_ids, base_tag_ids,
-                                       base_open_reports_date)
-    query_base_runs = get_diff_run_id_query(session, run_ids, base_tag_ids)
+    if cmp_data.byReportChanges is not None and cmp_data.byReportChanges:
+        query_base = get_diff_bug_id_query_with_length(session, run_ids, base_tag_ids,
+                                           base_open_reports_date)
 
-    query_new = get_diff_bug_id_query(session, cmp_data.runIds,
-                                      cmp_data.runTag,
-                                      cmp_data.openReportsDate)
+        query_new = get_diff_bug_id_query_with_length(session, cmp_data.runIds,
+                                          cmp_data.runTag,
+                                          cmp_data.openReportsDate)
+
+    else:
+        query_base = get_diff_bug_id_query(session, run_ids, base_tag_ids,
+                                           base_open_reports_date)
+
+        query_new = get_diff_bug_id_query(session, cmp_data.runIds,
+                                          cmp_data.runTag,
+                                          cmp_data.openReportsDate)
+
+    query_base_runs = get_diff_run_id_query(session, run_ids, base_tag_ids)
     query_new_runs = get_diff_run_id_query(session, cmp_data.runIds,
                                            cmp_data.runTag)
 
-    print("////////////////////////////////////////")
-    print("/////////////////except/////////////////")
-    u = except_(query_new, query_base)
-    print(select(u.c.id))
-    print("////////////////////////////////////////")
-    print("////////////////////////////////////////")
-
     AND = []
     if cmp_data.diffType == DiffType.NEW:
-        #return and_(Report.bug_id.in_(select(Report.id).from_statement(query_new.except_(query_base))),
-        return and_(Report.bug_id.in_(select(except_(query_new, query_base).subquery().c.id)),
-                    Report.run_id.in_(query_new_runs)), [Run]
+        query_bug_list = except_(query_new, query_base)
+        query_run_list = query_new_runs
 
     elif cmp_data.diffType == DiffType.RESOLVED:
-        return and_(Report.bug_id.in_(select(except_(query_base, query_new).subquery().c.id)),
-                    Report.run_id.in_(query_base_runs)), [Run]
+        query_bug_list = except_(query_base, query_new)
+        query_run_list = query_base_runs
 
     elif cmp_data.diffType == DiffType.UNRESOLVED:
-        return and_(Report.bug_id.in_(select(intersect(query_base, query_new).subquery().c.id)),
-                    Report.run_id.in_(query_new_runs)), [Run]
+        query_bug_list = intersect(query_base, query_new)
+        query_run_list = query_new_runs
 
     else:
         raise codechecker_api_shared.ttypes.RequestFailed(
             codechecker_api_shared.ttypes.ErrorCode.DATABASE,
             'Unsupported diff type: ' + str(cmp_data.diffType))
 
-    return and_(*AND), []
+    return and_(Report.bug_id.in_(select(query_bug_list.c.id)),
+                Report.run_id.in_(query_run_list)), [Run]
 
 
 def process_run_history_filter(query, run_ids, run_history_filter):
@@ -1145,15 +1155,13 @@ def get_analysis_statistics_query(session, run_ids, run_history_ids=None):
     query = session.query(AnalyzerStatistic, Run.id)
 
     if run_ids:
-        # Subquery to get analyzer statistics only for these run history id's.
         history_ids_subq = session.query(
                 func.max(AnalyzerStatistic.run_history_id)) \
             .filter(RunHistory.run_id.in_(run_ids)) \
             .outerjoin(
                 RunHistory,
                 RunHistory.id == AnalyzerStatistic.run_history_id) \
-            .group_by(RunHistory.run_id) \
-            .subquery()
+            .group_by(RunHistory.run_id)
 
         query = query.filter(
             AnalyzerStatistic.run_history_id.in_(history_ids_subq))
