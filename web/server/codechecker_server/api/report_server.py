@@ -707,33 +707,34 @@ def process_cmp_data_filter(session, run_ids, report_filter, cmp_data):
         return and_(diff_filter), join_tables
 
     query_base = get_diff_bug_id_query(session, run_ids, base_tag_ids,
-                                       base_open_reports_date).subquery()
+                                       base_open_reports_date)
     query_base_runs = get_diff_run_id_query(session, run_ids, base_tag_ids)
 
     query_new = get_diff_bug_id_query(session, cmp_data.runIds,
                                       cmp_data.runTag,
-                                      cmp_data.openReportsDate).subquery()
+                                      cmp_data.openReportsDate)
     query_new_runs = get_diff_run_id_query(session, cmp_data.runIds,
                                            cmp_data.runTag)
 
     print("////////////////////////////////////////")
     print("/////////////////except/////////////////")
-    print(select(except_(query_new, query_base).subquery().id))
+    u = except_(query_new, query_base)
+    print(select(u.c.id))
     print("////////////////////////////////////////")
     print("////////////////////////////////////////")
 
     AND = []
     if cmp_data.diffType == DiffType.NEW:
         #return and_(Report.bug_id.in_(select(Report.id).from_statement(query_new.except_(query_base))),
-        return and_(Report.bug_id.in_(except_(query_new, query_base)),
+        return and_(Report.bug_id.in_(select(except_(query_new, query_base).subquery().c.id)),
                     Report.run_id.in_(query_new_runs)), [Run]
 
     elif cmp_data.diffType == DiffType.RESOLVED:
-        return and_(Report.bug_id.in_(except_(query_base, query_new)),
+        return and_(Report.bug_id.in_(select(except_(query_base, query_new).subquery().c.id)),
                     Report.run_id.in_(query_base_runs)), [Run]
 
     elif cmp_data.diffType == DiffType.UNRESOLVED:
-        return and_(Report.bug_id.in_(intersect(query_base, query_new)),
+        return and_(Report.bug_id.in_(select(intersect(query_base, query_new).subquery().c.id)),
                     Report.run_id.in_(query_new_runs)), [Run]
 
     else:
