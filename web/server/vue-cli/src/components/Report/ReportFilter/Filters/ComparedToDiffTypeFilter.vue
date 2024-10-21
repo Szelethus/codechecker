@@ -11,6 +11,11 @@
     @clear="clear(true)"
     @input="setSelectedItems"
   >
+    <!-- Don't display if COMPARE TO is empty -->
+    <template v-slot:append-toolbar>
+      <DiffByReportChanges v-model="shouldDiffByReportChanges" />
+    </template>
+
     <template v-slot:icon="{ item }">
       <v-icon color="grey">
         {{ item.icon }}
@@ -30,12 +35,14 @@
 import { ccService, handleThriftError } from "@cc-api";
 import { CompareData, DiffType } from "@cc/report-server-types";
 
+import DiffByReportChanges from "./SelectOption/DiffByReportChanges.vue";
 import SelectOption from "./SelectOption/SelectOption";
 import BaseSelectOptionFilterMixin from "./BaseSelectOptionFilter.mixin";
 
 export default {
   name: "ComparedToDiffTypeFilter",
   components: {
+    DiffByReportChanges,
     SelectOption
   },
   mixins: [ BaseSelectOptionFilterMixin ],
@@ -43,8 +50,18 @@ export default {
   data() {
     return {
       id: "diff-type",
-      defaultValues: [ this.encodeValue(DiffType.NEW) ]
+      diffByReportChangesId: "diff-by-report-changes",
+      defaultValues: [ this.encodeValue(DiffType.NEW), false ],
+      shouldDiffByReportChanges: false
     };
+  },
+
+  watch: {
+    shouldDiffByReportChanges() {
+      this.updateReportFilter();
+      this.$emit("update:url");
+      this.update();
+    }
   },
 
   methods: {
@@ -68,7 +85,8 @@ export default {
 
     updateReportFilter() {
       this.setCmpData({
-        diffType: this.selectedItems[0].id
+        diffType: this.selectedItems[0].id,
+        byReportChanges: this.shouldDiffByReportChanges
       });
     },
 
@@ -90,6 +108,20 @@ export default {
       }
     },
 
+    getUrlState() {
+      const state =
+        this.selectedItems.map(item => this.encodeValue(item.id));
+
+      return {
+        [this.id]: state.length ? state : undefined
+      };
+    },
+
+    initByUrl() {
+      this.shouldDiffByReportChanges = !!this.$route.query[this.anywhereId];
+      this.initCheckOptionsByUrl();
+    },
+
     fetchItems() {
       this.loading = true;
 
@@ -104,6 +136,7 @@ export default {
         const cmpData = new CompareData(this.cmpData);
         cmpData.diffType = DiffType[key];
 
+        // TODO: run count will be incorrect
         return new Promise(resolve => {
           ccService.getClient().getRunResultCount(this.runIds,
             this.reportFilter, cmpData, handleThriftError(res => {

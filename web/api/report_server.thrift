@@ -391,6 +391,7 @@ struct ReportFilter {
   // have "value1" OR "value2" for "key1" AND have "value3" for "key2".
   22: optional list<Pair> annotations,
   23: optional list<ReportStatus>  reportStatus, // Specifying the status of the filtered reports.
+  24: bool         byReportChanges // TODO
 }
 
 struct RunReportCount {
@@ -455,6 +456,7 @@ struct CompareData {
   2: DiffType     diffType,
   3: list<i64>    runTag,          // Ids of the run history tags.
   4: optional i64 openReportsDate, // Open reports date in unix time format.
+  5: bool         byReportChanges, // TODO
 }
 
 // This type is used to get line content information for the given file at the
