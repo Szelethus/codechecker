@@ -173,7 +173,6 @@ class TestBaseTest(unittest.TestCase):
     def test_bazel_test_clang_ctu_fail(self):
         """Test: bazel test :clang_ctu_fail"""
         # FIXME: This test currently failes in the github CI.
-        pass
         # self.check_command("bazel test :clang_ctu_fail", exit_code=3)
         # logfile = os.path.join(
         #     self.BAZEL_TESTLOGS_DIR, "clang_ctu_fail", "test.log")
