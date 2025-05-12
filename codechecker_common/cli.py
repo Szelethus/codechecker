@@ -17,8 +17,6 @@ import json
 import os
 import signal
 import sys
-import pkgutil
-import subprocess
 
 
 class ArgumentParser(argparse.ArgumentParser):
