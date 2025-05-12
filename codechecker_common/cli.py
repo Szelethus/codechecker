@@ -91,13 +91,6 @@ def get_data_files_dir_path():
     sys.exit(1)
 
 
-def find_prog(prog):
-    try:
-        return subprocess.check_output(["which", prog])
-    except subprocess.CalledProcessError:
-        return None
-
-
 def main():
     """
     CodeChecker main command line.
@@ -173,12 +166,6 @@ output.
             lib_dir_path = os.environ.get('CC_LIB_DIR')
             for subcommand in subcommands:
                 try:
-                    # print(f'Modules list from CodeChecker:', str(
-                    #     [name for _, name, _ in pkgutil.iter_modules()]))
-                    # print('Env from CodeChecker:', str(os.environ))
-                    # print('CodeChecker interpreter: ' \
-                    #       f'{sys.executable}')
-                    # print('which python3: ', find_prog('python3'))
                     add_subcommand(subparsers, subcommand,
                                    subcommands[subcommand], lib_dir_path)
                 except (IOError, ImportError):
